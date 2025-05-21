@@ -151,17 +151,20 @@ function function_create_prexchor_rubrickey_1($page_id) {
     // Get the ante_prexchor_rubrickey content
     $ante_content = get_post_meta($page_id, 'ante_prexchor_rubrickey', true);
     if (empty($ante_content)) {
+        error_log('ante_prexchor_rubrickey is empty for page ' . $page_id);
         return false;
     }
 
     // Get Elementor data
     $elementor_data = get_post_meta($page_id, '_elementor_data', true);
     if (empty($elementor_data)) {
+        error_log('Elementor data is empty for page ' . $page_id);
         return false;
     }
 
     $data = json_decode($elementor_data, true);
     if (!is_array($data)) {
+        error_log('Failed to decode Elementor data for page ' . $page_id);
         return false;
     }
 
@@ -177,6 +180,8 @@ function function_create_prexchor_rubrickey_1($page_id) {
         $line = trim($line);
         if (empty($line)) continue;
 
+        error_log('Processing line: ' . $line);
+
         // Search through Elementor data for matching content
         foreach ($data as $container) {
             if (isset($container['elements'])) {
@@ -187,6 +192,7 @@ function function_create_prexchor_rubrickey_1($page_id) {
                         $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
                         foreach ($fields_to_check as $field) {
                             if (isset($settings[$field]) && $settings[$field] === $line) {
+                                error_log('Found match in top level: ' . $line . ' in field ' . $field);
                                 $mapping[] = $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
                                 break 2; // Break both loops when found
                             }
@@ -201,6 +207,7 @@ function function_create_prexchor_rubrickey_1($page_id) {
                                 $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
                                 foreach ($fields_to_check as $field) {
                                     if (isset($settings[$field]) && $settings[$field] === $line) {
+                                        error_log('Found match in nested level: ' . $line . ' in field ' . $field);
                                         $mapping[] = $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
                                         break 2; // Break both loops when found
                                     }
@@ -215,6 +222,7 @@ function function_create_prexchor_rubrickey_1($page_id) {
                                         $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
                                         foreach ($fields_to_check as $field) {
                                             if (isset($settings[$field]) && $settings[$field] === $line) {
+                                                error_log('Found match in third level: ' . $line . ' in field ' . $field);
                                                 $mapping[] = $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
                                                 break 2; // Break both loops when found
                                             }
@@ -232,8 +240,11 @@ function function_create_prexchor_rubrickey_1($page_id) {
     // Save the mapping
     $result = implode("\n", $mapping);
     if (!empty($result)) {
+        error_log('Saving mapping for page ' . $page_id . ': ' . $result);
         update_post_meta($page_id, 'prexchor_rubrickey', $result);
         return true;
     }
+    
+    error_log('No matches found for page ' . $page_id);
     return false;
 } 
