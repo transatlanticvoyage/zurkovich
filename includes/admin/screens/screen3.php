@@ -137,13 +137,17 @@ if ($selected_page_id) {
                 <td colspan="2">
                     <div style="display:flex;gap:18px;">
                         <div style="display:flex;flex-direction:column;gap:18px;">
+                            <div style="font-weight:bold;">ante_prexchor_rubrickey</div>
                             <textarea id="prexchor_rubrickey" name="prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($prexchor_rubrickey); ?></textarea>
                             <button type="submit" name="generate_rubrickey" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">generate rubrickey from field above</button>
+                            <div style="font-weight:bold;">prexchor_rubrickey</div>
                             <textarea id="prexchor_rubrickey_output" style="width: 400px; height: 250px;" readonly></textarea>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:18px;">
+                            <div style="height:21px;"></div>
                             <textarea id="prexchor_rubrickey_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
                             <div style="height:42px;"></div>
+                            <div style="height:21px;"></div>
                             <textarea id="prexchor_rubrickey_output_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
                         </div>
                     </div>
