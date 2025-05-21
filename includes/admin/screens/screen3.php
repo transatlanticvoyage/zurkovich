@@ -41,6 +41,20 @@ if (isset($_POST['generate_rubrickey']) && $selected_page_id) {
     }
 }
 
+// Handle inject content action for zeeprex_submit
+if (isset($_POST['inject_zeeprex_content']) && $selected_page_id) {
+    $zeeprex_content = isset($_POST['zeeprex_content']) ? sanitize_textarea_field($_POST['zeeprex_content']) : '';
+    update_post_meta($selected_page_id, 'zeeprex_submit', $zeeprex_content);
+}
+
+// Handle prexnar1 and prexnar2 custom fields
+if (isset($_POST['save_prexnar_fields']) && $selected_page_id) {
+    $prexnar1 = isset($_POST['prexnar1']) ? sanitize_textarea_field($_POST['prexnar1']) : '';
+    $prexnar2 = isset($_POST['prexnar2']) ? sanitize_textarea_field($_POST['prexnar2']) : '';
+    update_post_meta($selected_page_id, 'prexnar1', $prexnar1);
+    update_post_meta($selected_page_id, 'prexnar2', $prexnar2);
+}
+
 // Get the temprex_1_scraped value for the selected page
 $temprex_1_scraped = '';
 if ($selected_page_id) {
@@ -171,7 +185,29 @@ if ($selected_page_id) {
             <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
             <tr>
                 <th><label for="zeeprex_submit">zeeprex_submit</label></th>
-                <td colspan="2"></td>
+                <td colspan="2">
+                    <textarea id="zeeprex_submit" name="zeeprex_content" style="width: 400px; height: 100px;"></textarea>
+                    <br>
+                    <button type="submit" name="inject_zeeprex_content" style="background:#8000ff;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">inject content into selected page</button>
+                </td>
+            </tr>
+            <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
+            <tr>
+                <th><label for="prexnar1">prexnar1</label></th>
+                <td colspan="2">
+                    <textarea id="prexnar1" name="prexnar1" style="width: 400px; height: 60px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="prexnar2">prexnar2</label></th>
+                <td colspan="2">
+                    <textarea id="prexnar2" name="prexnar2" style="width: 400px; height: 60px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <button type="submit" name="save_prexnar_fields" style="background:#222;color:#fff;font-weight:bold;padding:6px 16px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">Save prexnar fields</button>
+                </td>
             </tr>
         </tbody></table>
     </form>
