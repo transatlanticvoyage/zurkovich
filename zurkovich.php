@@ -76,7 +76,7 @@ function zurkovich_admin_menu() {
         'Zurkovich', // Page title
         'Zurkovich', // Menu title
         'manage_options', // Capability
-        'zurkovich', // Menu slug
+        'zurkoscreen1', // Menu slug (updated)
         'zurkovich_screen1', // Function to display the page
         'dashicons-admin-generic', // Icon
         2 // Position between Dashboard and Posts
@@ -84,92 +84,92 @@ function zurkovich_admin_menu() {
 
     // Add submenu pages
     add_submenu_page(
-        'zurkovich', // Parent slug
+        'zurkoscreen1', // Parent slug (updated)
         'Screen 1 - API Keys', // Page title
         'Screen 1 - API Keys', // Menu title
         'manage_options', // Capability
-        'zurkovich', // Menu slug (same as parent for first item)
+        'zurkoscreen1', // Menu slug (updated)
         'zurkovich_screen1' // Function to display the page
     );
 
     add_submenu_page(
-        'zurkovich', // Parent slug
+        'zurkoscreen1', // Parent slug (updated)
         'Screen 2 - Driggs', // Page title
         'Screen 2 - Driggs', // Menu title
         'manage_options', // Capability
-        'zurkovich-screen2', // Menu slug
+        'zurkoscreen2', // Menu slug (updated)
         'zurkovich_screen2' // Function to display the page
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 3',
         'Screen 3',
         'manage_options',
-        'zurkovich-screen3',
+        'zurkoscreen3', // updated
         'zurkovich_screen3'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 4',
         'Screen 4',
         'manage_options',
-        'zurkovich-screen4',
+        'zurkoscreen4', // updated
         'zurkovich_screen4'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 5',
         'Screen 5',
         'manage_options',
-        'zurkovich-screen5',
+        'zurkoscreen5', // updated
         'zurkovich_screen5'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 6',
         'Screen 6',
         'manage_options',
-        'zurkovich-screen6',
+        'zurkoscreen6', // updated
         'zurkovich_screen6'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 7',
         'Screen 7',
         'manage_options',
-        'zurkovich-screen7',
+        'zurkoscreen7', // updated
         'zurkovich_screen7'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 8',
         'Screen 8',
         'manage_options',
-        'zurkovich-screen8',
+        'zurkoscreen8', // updated
         'zurkovich_screen8'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 9',
         'Screen 9',
         'manage_options',
-        'zurkovich-screen9',
+        'zurkoscreen9', // updated
         'zurkovich_screen9'
     );
 
     add_submenu_page(
-        'zurkovich',
+        'zurkoscreen1',
         'Screen 10',
         'Screen 10',
         'manage_options',
-        'zurkovich-screen10',
+        'zurkoscreen10', // updated
         'zurkovich_screen10'
     );
 }
