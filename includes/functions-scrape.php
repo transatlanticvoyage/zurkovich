@@ -195,10 +195,16 @@ function function_create_prexchor_rubrickey_1($page_id) {
                 if (isset($widget['settings'][$field])) {
                     error_log('Checking field ' . $field . ': ' . $widget['settings'][$field]);
                     
-                    // For editor field, check if the line is within the content
+                    // For editor/content fields, strip HTML tags before matching
                     if ($field === 'editor' || $field === 'content') {
-                        if (strpos($widget['settings'][$field], $line) !== false) {
-                            error_log('Found match in editor content');
+                        $plain = wp_strip_all_tags($widget['settings'][$field]);
+                        if (trim($plain) === $line) {
+                            error_log('Found exact match in editor/content (stripped)');
+                            $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
+                            $found = true;
+                            return true;
+                        } elseif (strpos($plain, $line) !== false) {
+                            error_log('Found substring match in editor/content (stripped)');
                             $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
                             $found = true;
                             return true;
