@@ -11,6 +11,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include scraping functions
+require_once plugin_dir_path(__FILE__) . 'includes/functions-scrape.php';
+
 // Function to save API key
 function zurkovich_save_api_key($api_key) {
     // Encrypt the API key before saving
