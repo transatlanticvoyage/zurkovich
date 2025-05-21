@@ -4,46 +4,57 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Scrape Elementor front-end content for a given page and save as custom field.
+ * Recursively extract all text content from Elementor data.
+ *
+ * @param array $element Elementor element array.
+ * @param array $lines Accumulator for text lines.
+ * @return void
+ */
+function zurko_extract_elementor_text($element, &$lines) {
+    if (isset($element['elements']) && is_array($element['elements'])) {
+        foreach ($element['elements'] as $child) {
+            zurko_extract_elementor_text($child, $lines);
+        }
+    }
+    // Check for widget content
+    if (isset($element['widgetType']) && isset($element['settings'])) {
+        foreach ($element['settings'] as $setting) {
+            if (is_string($setting) && trim($setting) !== '') {
+                $lines[] = wp_strip_all_tags($setting);
+            }
+        }
+    }
+    // Also check for section/column titles or other text fields
+    if (isset($element['settings']) && is_array($element['settings'])) {
+        foreach ($element['settings'] as $setting) {
+            if (is_string($setting) && trim($setting) !== '') {
+                $lines[] = wp_strip_all_tags($setting);
+            }
+        }
+    }
+}
+
+/**
+ * Scrape Elementor internal data for a given page and save as custom field.
  *
  * @param int $page_id The ID of the page to scrape.
  * @return bool True on success, false on failure.
  */
 function function_scrape_temprex_1($page_id) {
-    // Get the front-end URL for the page
-    $url = get_permalink($page_id);
-    if (!$url) {
+    // Get Elementor data from post meta
+    $elementor_data = get_post_meta($page_id, '_elementor_data', true);
+    if (empty($elementor_data)) {
         return false;
     }
-
-    // Fetch the front-end HTML
-    $response = wp_remote_get($url);
-    if (is_wp_error($response)) {
+    $data = json_decode($elementor_data, true);
+    if (!is_array($data)) {
         return false;
     }
-    $html = wp_remote_retrieve_body($response);
-    if (empty($html)) {
-        return false;
-    }
-
-    // Extract text content from Elementor output (placeholder logic)
-    // TODO: Replace this with more specific extraction logic as needed
-    $doc = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $doc->loadHTML($html);
-    libxml_clear_errors();
-    $xpath = new DOMXPath($doc);
-    $elements = $xpath->query('//body//*[not(self::script or self::style)]');
     $lines = [];
-    foreach ($elements as $el) {
-        $text = trim($el->textContent);
-        if ($text !== '') {
-            $lines[] = $text;
-        }
+    foreach ($data as $element) {
+        zurko_extract_elementor_text($element, $lines);
     }
-    $result = implode("\n", $lines);
-
-    // Save to custom field
+    $result = implode("\n", array_filter(array_map('trim', $lines)));
     update_post_meta($page_id, 'temprex_1_scraped', $result);
     return true;
 } 
