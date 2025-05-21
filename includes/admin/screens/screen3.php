@@ -5,6 +5,20 @@ if (!defined('ABSPATH')) {
 
 // Dynamically get all published pages
 $pages = get_pages(array('post_status' => 'publish'));
+
+// Determine selected page
+$selected_page_id = isset($_POST['balarfi_page_id']) ? intval($_POST['balarfi_page_id']) : '';
+
+// Handle scrape action
+if (isset($_POST['scrape_temprex_fresh']) && $selected_page_id) {
+    function_scrape_temprex_1($selected_page_id);
+}
+
+// Get the temprex_1_scraped value for the selected page
+$temprex_1_scraped = '';
+if ($selected_page_id) {
+    $temprex_1_scraped = get_post_meta($selected_page_id, 'temprex_1_scraped', true);
+}
 ?>
 <div class="wrap">
     <div style="font-weight:bold; font-size:1.2em; margin-bottom:10px;">Screen 3 - Prex Extract</div>
@@ -17,10 +31,10 @@ $pages = get_pages(array('post_status' => 'publish'));
             <tr>
                 <th><label for="balarfi_page_id">Select a page</label></th>
                 <td style="display:flex;align-items:center;">
-                    <select name="balarfi_page_id" id="balarfi_page_id" style="margin-right:12px; min-width: 200px;">
+                    <select name="balarfi_page_id" id="balarfi_page_id" style="margin-right:12px; min-width: 200px;" onchange="this.form.submit();">
                         <option value="">Select a page...</option>
                         <?php foreach ($pages as $page): ?>
-                            <option value="<?php echo esc_attr($page->ID); ?>"><?php echo esc_html($page->post_title); ?></option>
+                            <option value="<?php echo esc_attr($page->ID); ?>" <?php selected($selected_page_id, $page->ID); ?>><?php echo esc_html($page->post_title); ?></option>
                         <?php endforeach; ?>
                     </select>
                     <input type="radio" name="kardwaj_radio" value="select" style="margin-left:8px;" checked>
@@ -49,7 +63,7 @@ $pages = get_pages(array('post_status' => 'publish'));
                 </th>
                 <td colspan="2">
                     <div style="display:flex;gap:18px;">
-                        <textarea id="temprex_1_scraped" name="temprex_1_scraped" style="width: 400px; height: 250px;" readonly></textarea>
+                        <textarea id="temprex_1_scraped" name="temprex_1_scraped" style="width: 400px; height: 250px;" readonly><?php echo esc_textarea($temprex_1_scraped); ?></textarea>
                         <textarea id="temprex_1_scraped_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
                     </div>
                 </td>
