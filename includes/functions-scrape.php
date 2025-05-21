@@ -4,32 +4,51 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Recursively extract all text content from Elementor data.
+ * Recursively extract only visible text content from Elementor data.
  *
  * @param array $element Elementor element array.
  * @param array $lines Accumulator for text lines.
  * @return void
  */
 function zurko_extract_elementor_text($element, &$lines) {
+    // If this is a widget, extract only output fields
+    if (isset($element['widgetType']) && isset($element['settings']) && is_array($element['settings'])) {
+        $widget_type = $element['widgetType'];
+        $settings = $element['settings'];
+        // Common output fields by widget type
+        $output_fields = [];
+        switch ($widget_type) {
+            case 'heading':
+            case 'heading.default':
+                $output_fields = ['title', 'heading'];
+                break;
+            case 'text-editor':
+            case 'text-editor.default':
+                $output_fields = ['editor', 'content', 'text'];
+                break;
+            case 'image-box':
+            case 'image-box.default':
+                $output_fields = ['title', 'description'];
+                break;
+            case 'button':
+            case 'button.default':
+                $output_fields = ['text', 'button_text'];
+                break;
+            default:
+                // For other widgets, try common output fields
+                $output_fields = ['title', 'heading', 'editor', 'content', 'text', 'description', 'button_text'];
+                break;
+        }
+        foreach ($output_fields as $field) {
+            if (isset($settings[$field]) && is_string($settings[$field]) && trim($settings[$field]) !== '') {
+                $lines[] = wp_strip_all_tags($settings[$field]);
+            }
+        }
+    }
+    // Recursively process children
     if (isset($element['elements']) && is_array($element['elements'])) {
         foreach ($element['elements'] as $child) {
             zurko_extract_elementor_text($child, $lines);
-        }
-    }
-    // Check for widget content
-    if (isset($element['widgetType']) && isset($element['settings'])) {
-        foreach ($element['settings'] as $setting) {
-            if (is_string($setting) && trim($setting) !== '') {
-                $lines[] = wp_strip_all_tags($setting);
-            }
-        }
-    }
-    // Also check for section/column titles or other text fields
-    if (isset($element['settings']) && is_array($element['settings'])) {
-        foreach ($element['settings'] as $setting) {
-            if (is_string($setting) && trim($setting) !== '') {
-                $lines[] = wp_strip_all_tags($setting);
-            }
         }
     }
 }
