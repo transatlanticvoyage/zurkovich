@@ -28,8 +28,13 @@ if (isset($_POST['cache_temprex_3']) && $selected_page_id) {
 
 // Handle cache action for prexchor_rubrickey
 if (isset($_POST['cache_prexchor_rubrickey']) && $selected_page_id) {
-    $cached_content = isset($_POST['prexchor_rubrickey']) ? sanitize_textarea_field($_POST['prexchor_rubrickey']) : '';
-    update_post_meta($selected_page_id, 'prexchor_rubrickey', $cached_content);
+    $cached_content = isset($_POST['ante_prexchor_rubrickey']) ? sanitize_textarea_field($_POST['ante_prexchor_rubrickey']) : '';
+    update_post_meta($selected_page_id, 'ante_prexchor_rubrickey', $cached_content);
+}
+
+// Handle generate rubrickey action
+if (isset($_POST['generate_rubrickey']) && $selected_page_id) {
+    function_create_prexchor_rubrickey_1($selected_page_id);
 }
 
 // Get the temprex_1_scraped value for the selected page
@@ -48,6 +53,12 @@ if ($selected_page_id) {
 $temprex_3_cached = '';
 if ($selected_page_id) {
     $temprex_3_cached = get_post_meta($selected_page_id, 'temprex_3_cached_by_hand', true);
+}
+
+// Get the ante_prexchor_rubrickey value for the selected page
+$ante_prexchor_rubrickey = '';
+if ($selected_page_id) {
+    $ante_prexchor_rubrickey = get_post_meta($selected_page_id, 'ante_prexchor_rubrickey', true);
 }
 
 // Get the prexchor_rubrickey value for the selected page
@@ -137,7 +148,7 @@ if ($selected_page_id) {
                     <div style="display:flex;gap:18px;">
                         <div style="display:flex;flex-direction:column;gap:18px;">
                             <div style="font-weight:bold;">ante_prexchor_rubrickey</div>
-                            <textarea id="prexchor_rubrickey" name="prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($prexchor_rubrickey); ?></textarea>
+                            <textarea id="ante_prexchor_rubrickey" name="ante_prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($ante_prexchor_rubrickey); ?></textarea>
                             <button type="submit" name="cache_prexchor_rubrickey" style="background:#2c4a2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">cache now</button>
                             <button type="submit" name="generate_rubrickey" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">generate rubrickey from field above</button>
                             <div style="font-weight:bold;">prexchor_rubrickey</div>

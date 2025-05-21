@@ -139,4 +139,67 @@ function function_prompt_ai_tool_and_receive_output_1($prompt) {
         return 'API error: ' . $data['error']['message'];
     }
     return 'Unknown error or no response from AI tool.';
+}
+
+/**
+ * Create a mapping of content identifiers to their Elementor element locations
+ *
+ * @param int $page_id The ID of the page to process
+ * @return bool True on success, false on failure
+ */
+function function_create_prexchor_rubrickey_1($page_id) {
+    // Get the ante_prexchor_rubrickey content
+    $ante_content = get_post_meta($page_id, 'ante_prexchor_rubrickey', true);
+    if (empty($ante_content)) {
+        return false;
+    }
+
+    // Get Elementor data
+    $elementor_data = get_post_meta($page_id, '_elementor_data', true);
+    if (empty($elementor_data)) {
+        return false;
+    }
+
+    $data = json_decode($elementor_data, true);
+    if (!is_array($data)) {
+        return false;
+    }
+
+    // Split the ante content into lines and remove the '>' prefix
+    $lines = array_map(function($line) {
+        return ltrim($line, '>');
+    }, explode("\n", $ante_content));
+
+    $mapping = [];
+    
+    // Process each line
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line)) continue;
+
+        // Search through Elementor data for matching content
+        foreach ($data as $container) {
+            if (isset($container['elements'])) {
+                foreach ($container['elements'] as $element) {
+                    if (isset($element['settings'])) {
+                        $settings = $element['settings'];
+                        
+                        // Check different possible settings fields
+                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
+                        foreach ($fields_to_check as $field) {
+                            if (isset($settings[$field]) && $settings[$field] === $line) {
+                                $mapping[] = $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
+                                break 2; // Break both loops when found
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Save the mapping
+    $result = implode("\n", $mapping);
+    update_post_meta($page_id, 'prexchor_rubrickey', $result);
+    return true;
 } 
