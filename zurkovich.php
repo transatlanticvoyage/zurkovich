@@ -103,8 +103,8 @@ function zurkovich_admin_menu() {
 
     add_submenu_page(
         'zurkoscreen1',
-        'Screen 3',
-        'Screen 3',
+        'Screen 3 - Prex Extract',
+        'Screen 3 - Prex Extract',
         'manage_options',
         'zurkoscreen3', // updated
         'zurkovich_screen3'

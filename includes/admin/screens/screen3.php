@@ -2,7 +2,75 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Dynamically get all published pages
+$pages = get_pages(array('post_status' => 'publish'));
 ?>
 <div class="wrap">
-    <h1>Screen 3</h1>
+    <div style="font-weight:bold; font-size:1.2em; margin-bottom:10px;">Screen 3 - Prex Extract</div>
+    <h1>Screen 3 - Prex Extract</h1>
+    <form method="post" id="balarfi-form">
+        <input type="hidden" name="page" value="zurkoscreen3" />
+        <hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;">
+        <div style="width:100%;background:#d6ecff;color:#1a2333;font-weight:bold;font-size:1.1em;padding:8px 0 8px 12px;margin-bottom:10px;">Select A Page To Extract Codes From</div>
+        <table class="form-table"><tbody>
+            <tr>
+                <th><label for="balarfi_page_id">Select a page</label></th>
+                <td style="display:flex;align-items:center;">
+                    <select name="balarfi_page_id" id="balarfi_page_id" style="margin-right:12px; min-width: 200px;">
+                        <option value="">Select a page...</option>
+                        <?php foreach ($pages as $page): ?>
+                            <option value="<?php echo esc_attr($page->ID); ?>"><?php echo esc_html($page->post_title); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="radio" name="kardwaj_radio" value="select" style="margin-left:8px;" checked>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="kardwaj_default">Use default kardwaj page</label></th>
+                <td style="display:flex;align-items:center;">
+                    <input type="text" id="kardwaj_default" value="(default)" style="width:180px; margin-right:12px; background:#eee; color:#888; border:1px solid #ccc;" readonly />
+                    <input type="radio" name="kardwaj_radio" value="default" style="margin-left:8px;">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="manual_post_id">Type in a wp post id</label></th>
+                <td style="display:flex;align-items:center;">
+                    <input type="text" name="manual_post_id" id="manual_post_id" value="" style="width:120px; margin-right:12px;" />
+                    <input type="radio" name="kardwaj_radio" value="manual" style="margin-left:8px;">
+                </td>
+            </tr>
+        </tbody></table>
+        <hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;">
+        <table class="form-table"><tbody>
+            <tr>
+                <th><label for="temprex_1_scraped">temprex_1_scraped</label><br />
+                    <button type="submit" name="scrape_temprex_fresh" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">scrape temprex fresh</button>
+                </th>
+                <td colspan="2">
+                    <div style="display:flex;gap:18px;">
+                        <textarea id="temprex_1_scraped" name="temprex_1_scraped" style="width: 400px; height: 250px;" readonly></textarea>
+                        <textarea id="temprex_1_scraped_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
+            <tr>
+                <th><label for="temprex_2_cached_by_hand">temprex_2_cached_by_hand</label><br />
+                    <button type="submit" name="cache_temprex_2" style="background:#4a2c2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">cache now</button>
+                </th>
+                <td colspan="2">
+                    <div style="display:flex;gap:18px;">
+                        <textarea id="temprex_2_cached_by_hand" name="temprex_2_cached_by_hand" style="width: 400px; height: 250px;"></textarea>
+                        <textarea id="temprex_2_cached_by_hand_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
+            <tr>
+                <th><label for="zeeprex_submit">zeeprex_submit</label></th>
+                <td colspan="2"></td>
+            </tr>
+        </tbody></table>
+    </form>
 </div> 
