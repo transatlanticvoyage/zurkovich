@@ -39,6 +39,8 @@ function zurko_extract_elementor_text($element, &$lines) {
                 $output_fields = ['title', 'heading', 'editor', 'content', 'text', 'description', 'button_text'];
                 break;
         }
+        // Always check for 'title' and 'description' as a fallback
+        $output_fields = array_unique(array_merge($output_fields, ['title', 'description']));
         foreach ($output_fields as $field) {
             if (isset($settings[$field]) && is_string($settings[$field]) && trim($settings[$field]) !== '') {
                 $lines[] = wp_strip_all_tags($settings[$field]);
