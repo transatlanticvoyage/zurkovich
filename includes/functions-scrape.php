@@ -47,7 +47,7 @@ function zurko_extract_elementor_text($element, &$lines) {
                 // Split the text into words and check each word
                 $words = preg_split('/\s+/', $text);
                 foreach ($words as $word) {
-                    if (preg_match('/^(y_|k_)/', $word)) {
+                    if (preg_match('/^(y_|k_)/i', $word)) {
                         $lines[] = $word;
                     }
                 }
