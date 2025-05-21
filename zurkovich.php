@@ -115,8 +115,8 @@ function zurkovich_admin_menu() {
 
     add_submenu_page(
         'zurkoscreen1',
-        'Screen 4',
-        'Screen 4',
+        'Screen 4 - AI Tool Generate Content',
+        'Screen 4 - AI Tool Generate Content',
         'manage_options',
         'zurkoscreen4', // updated
         'zurkovich_screen4'

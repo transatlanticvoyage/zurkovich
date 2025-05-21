@@ -76,4 +76,44 @@ function function_scrape_temprex_1($page_id) {
     $result = implode("\n", array_filter(array_map('trim', $lines)));
     update_post_meta($page_id, 'temprex_1_scraped', $result);
     return true;
+}
+
+/**
+ * Send a prompt to the OpenAI GPT API and return the output.
+ *
+ * @param string $prompt The prompt to send to the AI tool.
+ * @return string The AI's response, or an error message.
+ */
+function function_prompt_ai_tool_and_receive_output_1($prompt) {
+    $api_key = zurkovich_get_api_key();
+    if (empty($api_key)) {
+        return 'No API key found.';
+    }
+    $endpoint = 'https://api.openai.com/v1/chat/completions';
+    $args = array(
+        'headers' => array(
+            'Authorization' => 'Bearer ' . $api_key,
+            'Content-Type'  => 'application/json',
+        ),
+        'body' => json_encode(array(
+            'model' => 'gpt-3.5-turbo',
+            'messages' => array(
+                array('role' => 'user', 'content' => $prompt)
+            ),
+            'max_tokens' => 1024,
+        )),
+        'timeout' => 30,
+    );
+    $response = wp_remote_post($endpoint, $args);
+    if (is_wp_error($response)) {
+        return 'Request error: ' . $response->get_error_message();
+    }
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+    if (isset($data['choices'][0]['message']['content'])) {
+        return trim($data['choices'][0]['message']['content']);
+    } elseif (isset($data['error']['message'])) {
+        return 'API error: ' . $data['error']['message'];
+    }
+    return 'Unknown error or no response from AI tool.';
 } 
