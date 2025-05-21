@@ -222,14 +222,14 @@ function function_create_prexchor_rubrickey_1($page_id) {
             return false;
         };
 
-        // Recursive function to check all levels of elements
-        $check_elements = function($elements, $line) use (&$check_widget, &$found) {
+        // Recursive function to check all levels of elements (define by reference)
+        $check_elements = null;
+        $check_elements = function($elements, $line) use (&$check_widget, &$check_elements, &$found) {
             foreach ($elements as $element) {
                 if ($check_widget($element, $line)) {
                     $found = true;
                     return true;
                 }
-                
                 if (isset($element['elements'])) {
                     if ($check_elements($element['elements'], $line)) {
                         return true;
