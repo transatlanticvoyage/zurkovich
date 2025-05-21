@@ -200,6 +200,9 @@ function function_create_prexchor_rubrickey_1($page_id) {
 
     // Save the mapping
     $result = implode("\n", $mapping);
-    update_post_meta($page_id, 'prexchor_rubrickey', $result);
-    return true;
+    if (!empty($result)) {
+        update_post_meta($page_id, 'prexchor_rubrickey', $result);
+        return true;
+    }
+    return false;
 } 

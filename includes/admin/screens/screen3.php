@@ -34,7 +34,11 @@ if (isset($_POST['cache_prexchor_rubrickey']) && $selected_page_id) {
 
 // Handle generate rubrickey action
 if (isset($_POST['generate_rubrickey']) && $selected_page_id) {
-    function_create_prexchor_rubrickey_1($selected_page_id);
+    // Get Elementor data for the selected page
+    $elementor_data = get_post_meta($selected_page_id, '_elementor_data', true);
+    if (!empty($elementor_data)) {
+        function_create_prexchor_rubrickey_1($selected_page_id);
+    }
 }
 
 // Get the temprex_1_scraped value for the selected page
