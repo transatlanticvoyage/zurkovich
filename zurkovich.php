@@ -78,8 +78,8 @@ function zurkovich_admin_menu() {
 
     add_submenu_page(
         'zurkovich', // Parent slug
-        'Screen 2', // Page title
-        'Screen 2', // Menu title
+        'Screen 2 - Driggs', // Page title
+        'Screen 2 - Driggs', // Menu title
         'manage_options', // Capability
         'zurkovich-screen2', // Menu slug
         'zurkovich_screen2' // Function to display the page
