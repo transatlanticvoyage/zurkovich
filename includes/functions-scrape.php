@@ -249,4 +249,68 @@ function function_create_prexchor_rubrickey_1($page_id) {
 
     error_log('Saving mapping for page ' . $page_id . ': ' . implode("\n", $mapping));
     update_post_meta($page_id, 'prexchor_rubrickey', implode("\n", $mapping));
+}
+
+/**
+ * Inject content into Elementor widgets based on user input codes.
+ *
+ * @param int $page_id The ID of the page to update.
+ * @param string $zeeprex_content The user-submitted content.
+ * @return bool True on success, false on failure.
+ */
+function function_inject_content_1($page_id, $zeeprex_content) {
+    if (empty($zeeprex_content)) return false;
+    $elementor_data = get_post_meta($page_id, '_elementor_data', true);
+    if (empty($elementor_data)) return false;
+    $data = json_decode($elementor_data, true);
+    if (!is_array($data)) return false;
+
+    // Parse zeeprex_content into code => content
+    $lines = preg_split('/\r?\n/', $zeeprex_content);
+    $map = [];
+    $current_code = null;
+    foreach ($lines as $line) {
+        $line = rtrim($line);
+        if (preg_match('/^>([kK_yY][^\s]*)/', $line, $m)) {
+            $current_code = $m[1];
+            $map[$current_code] = '';
+        } elseif (preg_match('/^>/', $line)) {
+            // Ignore codes not starting with k_ or y_
+            $current_code = null;
+        } elseif ($current_code !== null) {
+            $map[$current_code] .= ($map[$current_code] === '' ? '' : "\n") . $line;
+        }
+    }
+    if (empty($map)) return false;
+
+    // Helper to recursively update widgets
+    $update_widgets = function (&$elements) use (&$update_widgets, $map) {
+        foreach ($elements as &$el) {
+            if (isset($el['settings']) && isset($el['widgetType'])) {
+                // Check all possible text fields
+                $fields = ['title', 'title_text', 'description_text', 'editor', 'content', 'text'];
+                foreach ($fields as $field) {
+                    if (isset($el['settings'][$field])) {
+                        $val = wp_strip_all_tags($el['settings'][$field]);
+                        foreach ($map as $code => $content) {
+                            if ($el['settings'][$field] === $code || $val === $code) {
+                                // For editor/content fields, keep HTML if present in user input
+                                if ($field === 'editor' || $field === 'content') {
+                                    $el['settings'][$field] = $content;
+                                } else {
+                                    $el['settings'][$field] = $content;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (isset($el['elements']) && is_array($el['elements'])) {
+                $update_widgets($el['elements']);
+            }
+        }
+    };
+    $update_widgets($data);
+    update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+    return true;
 } 
