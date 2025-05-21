@@ -26,5 +26,6 @@ jQuery(document).ready(function($) {
                 $('#ai_output').val('AJAX error: ' + error);
             }
         });
+        return false;
     });
 }); 
