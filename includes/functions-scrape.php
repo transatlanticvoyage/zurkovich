@@ -181,15 +181,46 @@ function function_create_prexchor_rubrickey_1($page_id) {
         foreach ($data as $container) {
             if (isset($container['elements'])) {
                 foreach ($container['elements'] as $element) {
+                    // Check if this element has the content
                     if (isset($element['settings'])) {
                         $settings = $element['settings'];
-                        
-                        // Check different possible settings fields
                         $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
                         foreach ($fields_to_check as $field) {
                             if (isset($settings[$field]) && $settings[$field] === $line) {
                                 $mapping[] = $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
                                 break 2; // Break both loops when found
+                            }
+                        }
+                    }
+
+                    // Check nested elements
+                    if (isset($element['elements']) && is_array($element['elements'])) {
+                        foreach ($element['elements'] as $nested_element) {
+                            if (isset($nested_element['settings'])) {
+                                $settings = $nested_element['settings'];
+                                $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
+                                foreach ($fields_to_check as $field) {
+                                    if (isset($settings[$field]) && $settings[$field] === $line) {
+                                        $mapping[] = $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
+                                        break 2; // Break both loops when found
+                                    }
+                                }
+                            }
+
+                            // Check third level elements
+                            if (isset($nested_element['elements']) && is_array($nested_element['elements'])) {
+                                foreach ($nested_element['elements'] as $third_level_element) {
+                                    if (isset($third_level_element['settings'])) {
+                                        $settings = $third_level_element['settings'];
+                                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
+                                        foreach ($fields_to_check as $field) {
+                                            if (isset($settings[$field]) && $settings[$field] === $line) {
+                                                $mapping[] = $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
+                                                break 2; // Break both loops when found
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
