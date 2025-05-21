@@ -14,10 +14,16 @@ if (isset($_POST['scrape_temprex_fresh']) && $selected_page_id) {
     function_scrape_temprex_1($selected_page_id);
 }
 
-// Handle cache action
+// Handle cache action for temprex_2
 if (isset($_POST['cache_temprex_2']) && $selected_page_id) {
     $cached_content = isset($_POST['temprex_2_cached_by_hand']) ? sanitize_textarea_field($_POST['temprex_2_cached_by_hand']) : '';
     update_post_meta($selected_page_id, 'temprex_2_cached_by_hand', $cached_content);
+}
+
+// Handle cache action for temprex_3
+if (isset($_POST['cache_temprex_3']) && $selected_page_id) {
+    $cached_content = isset($_POST['temprex_3_cached_by_hand']) ? sanitize_textarea_field($_POST['temprex_3_cached_by_hand']) : '';
+    update_post_meta($selected_page_id, 'temprex_3_cached_by_hand', $cached_content);
 }
 
 // Get the temprex_1_scraped value for the selected page
@@ -30,6 +36,12 @@ if ($selected_page_id) {
 $temprex_2_cached = '';
 if ($selected_page_id) {
     $temprex_2_cached = get_post_meta($selected_page_id, 'temprex_2_cached_by_hand', true);
+}
+
+// Get the temprex_3_cached_by_hand value for the selected page
+$temprex_3_cached = '';
+if ($selected_page_id) {
+    $temprex_3_cached = get_post_meta($selected_page_id, 'temprex_3_cached_by_hand', true);
 }
 ?>
 <div class="wrap">
@@ -90,6 +102,18 @@ if ($selected_page_id) {
                     <div style="display:flex;gap:18px;">
                         <textarea id="temprex_2_cached_by_hand" name="temprex_2_cached_by_hand" style="width: 400px; height: 250px;"><?php echo esc_textarea($temprex_2_cached); ?></textarea>
                         <textarea id="temprex_2_cached_by_hand_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
+            <tr>
+                <th><label for="temprex_3_cached_by_hand">temprex_3_cached_by_hand</label><br />
+                    <button type="submit" name="cache_temprex_3" style="background:#4a2c2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">cache now</button>
+                </th>
+                <td colspan="2">
+                    <div style="display:flex;gap:18px;">
+                        <textarea id="temprex_3_cached_by_hand" name="temprex_3_cached_by_hand" style="width: 400px; height: 250px;"><?php echo esc_textarea($temprex_3_cached); ?></textarea>
+                        <textarea id="temprex_3_cached_by_hand_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
                     </div>
                 </td>
             </tr>
