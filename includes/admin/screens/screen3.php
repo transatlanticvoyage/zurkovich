@@ -6,8 +6,8 @@ if (!defined('ABSPATH')) {
 // Dynamically get all published pages
 $pages = get_pages(array('post_status' => 'publish'));
 
-// Determine selected page
-$selected_page_id = isset($_POST['balarfi_page_id']) ? intval($_POST['balarfi_page_id']) : '';
+// Determine selected page - now using GET instead of POST
+$selected_page_id = isset($_GET['balarfi_page_id']) ? intval($_GET['balarfi_page_id']) : '';
 
 // Handle scrape action
 if (isset($_POST['scrape_temprex_fresh']) && $selected_page_id) {
@@ -31,7 +31,7 @@ if ($selected_page_id) {
             <tr>
                 <th><label for="balarfi_page_id">Select a page</label></th>
                 <td style="display:flex;align-items:center;">
-                    <select name="balarfi_page_id" id="balarfi_page_id" style="margin-right:12px; min-width: 200px;" onchange="this.form.submit();">
+                    <select name="balarfi_page_id" id="balarfi_page_id" style="margin-right:12px; min-width: 200px;" onchange="window.location.href='?page=zurkoscreen3&balarfi_page_id=' + this.value;">
                         <option value="">Select a page...</option>
                         <?php foreach ($pages as $page): ?>
                             <option value="<?php echo esc_attr($page->ID); ?>" <?php selected($selected_page_id, $page->ID); ?>><?php echo esc_html($page->post_title); ?></option>
