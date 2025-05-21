@@ -131,7 +131,7 @@ if ($selected_page_id) {
             </tr>
             <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
             <tr>
-                <th><label for="prexchor_rubrickey">prexchor_rubrickey</label><br />
+                <th>
                     <button type="submit" name="cache_prexchor_rubrickey" style="background:#2c4a2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">cache now</button>
                 </th>
                 <td colspan="2">
