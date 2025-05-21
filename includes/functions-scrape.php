@@ -15,6 +15,7 @@ function zurko_extract_elementor_text($element, &$lines) {
     if (isset($element['widgetType']) && isset($element['settings']) && is_array($element['settings'])) {
         $widget_type = $element['widgetType'];
         $settings = $element['settings'];
+        
         // Common output fields by widget type
         $output_fields = [];
         switch ($widget_type) {
@@ -28,8 +29,20 @@ function zurko_extract_elementor_text($element, &$lines) {
                 break;
             case 'image-box':
             case 'image-box.default':
-                $output_fields = ['title', 'description'];
-                break;
+                // For image-box widgets, we need to check both title and description
+                if (isset($settings['title_text']) && is_string($settings['title_text'])) {
+                    $text = wp_strip_all_tags($settings['title_text']);
+                    if (preg_match('/^(y_|k_)/i', $text)) {
+                        $lines[] = $text;
+                    }
+                }
+                if (isset($settings['description_text']) && is_string($settings['description_text'])) {
+                    $text = wp_strip_all_tags($settings['description_text']);
+                    if (preg_match('/^(y_|k_)/i', $text)) {
+                        $lines[] = $text;
+                    }
+                }
+                return; // Skip the general field processing for image-box
             case 'button':
             case 'button.default':
                 $output_fields = ['text', 'button_text'];
@@ -39,6 +52,7 @@ function zurko_extract_elementor_text($element, &$lines) {
                 $output_fields = ['title', 'heading', 'editor', 'content', 'text', 'description', 'button_text'];
                 break;
         }
+        
         // Always check for 'title' and 'description' as a fallback
         $output_fields = array_unique(array_merge($output_fields, ['title', 'description']));
         foreach ($output_fields as $field) {
