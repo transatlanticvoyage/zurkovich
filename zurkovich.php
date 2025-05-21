@@ -11,6 +11,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Function to save API key
+function zurkovich_save_api_key($api_key) {
+    // Encrypt the API key before saving
+    $encrypted_key = base64_encode($api_key);
+    update_option('zurkovich_openai_api_key', $encrypted_key);
+}
+
+// Function to get API key
+function zurkovich_get_api_key() {
+    $encrypted_key = get_option('zurkovich_openai_api_key');
+    if ($encrypted_key) {
+        return base64_decode($encrypted_key);
+    }
+    return '';
+}
+
 // Create database tables on plugin activation
 function zurkovich_create_tables() {
     global $wpdb;
