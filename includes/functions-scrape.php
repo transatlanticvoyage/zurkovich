@@ -189,11 +189,11 @@ function function_create_prexchor_rubrickey_1($page_id) {
                     // Check if this element has the content
                     if (isset($element['settings'])) {
                         $settings = $element['settings'];
-                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
+                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
                         foreach ($fields_to_check as $field) {
                             if (isset($settings[$field]) && $settings[$field] === $line) {
                                 error_log('Found match in top level: ' . $line . ' in field ' . $field);
-                                $mapping[] = $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
+                                $mapping[] = '>' . $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
                                 break 2; // Break both loops when found
                             }
                         }
@@ -204,11 +204,11 @@ function function_create_prexchor_rubrickey_1($page_id) {
                         foreach ($element['elements'] as $nested_element) {
                             if (isset($nested_element['settings'])) {
                                 $settings = $nested_element['settings'];
-                                $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
+                                $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
                                 foreach ($fields_to_check as $field) {
                                     if (isset($settings[$field]) && $settings[$field] === $line) {
                                         error_log('Found match in nested level: ' . $line . ' in field ' . $field);
-                                        $mapping[] = $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
+                                        $mapping[] = '>' . $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
                                         break 2; // Break both loops when found
                                     }
                                 }
@@ -219,11 +219,11 @@ function function_create_prexchor_rubrickey_1($page_id) {
                                 foreach ($nested_element['elements'] as $third_level_element) {
                                     if (isset($third_level_element['settings'])) {
                                         $settings = $third_level_element['settings'];
-                                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor'];
+                                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
                                         foreach ($fields_to_check as $field) {
                                             if (isset($settings[$field]) && $settings[$field] === $line) {
                                                 error_log('Found match in third level: ' . $line . ' in field ' . $field);
-                                                $mapping[] = $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
+                                                $mapping[] = '>' . $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
                                                 break 2; // Break both loops when found
                                             }
                                         }
