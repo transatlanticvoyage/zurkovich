@@ -217,4 +217,23 @@ function zurkovich_screen9() {
 
 function zurkovich_screen10() {
     include plugin_dir_path(__FILE__) . 'includes/admin/screens/screen10.php';
-} 
+}
+
+add_action('wp_ajax_zurkovich_ai_tool_prompt', function() {
+    check_ajax_referer('zurkovich_ai_tool_nonce', 'nonce');
+    $prompt = isset($_POST['prompt']) ? sanitize_textarea_field($_POST['prompt']) : '';
+    if (empty($prompt)) {
+        wp_send_json_error('No prompt provided.');
+    }
+    $output = function_prompt_ai_tool_and_receive_output_1($prompt);
+    wp_send_json_success(['output' => $output]);
+});
+add_action('wp_ajax_nopriv_zurkovich_ai_tool_prompt', function() {
+    check_ajax_referer('zurkovich_ai_tool_nonce', 'nonce');
+    $prompt = isset($_POST['prompt']) ? sanitize_textarea_field($_POST['prompt']) : '';
+    if (empty($prompt)) {
+        wp_send_json_error('No prompt provided.');
+    }
+    $output = function_prompt_ai_tool_and_receive_output_1($prompt);
+    wp_send_json_success(['output' => $output]);
+}); 
