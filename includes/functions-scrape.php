@@ -168,6 +168,10 @@ function function_create_prexchor_rubrickey_1($page_id) {
         return false;
     }
 
+    // Debug: Log the structure of the first few elements
+    error_log('Elementor data structure:');
+    error_log(print_r(array_slice($data, 0, 2), true));
+
     // Split the ante content into lines and remove the '>' prefix
     $lines = array_map(function($line) {
         return ltrim($line, '>');
@@ -181,20 +185,33 @@ function function_create_prexchor_rubrickey_1($page_id) {
         if (empty($line)) continue;
 
         error_log('Processing line: ' . $line);
+        $found = false;
 
         // Search through Elementor data for matching content
         foreach ($data as $container) {
             if (isset($container['elements'])) {
                 foreach ($container['elements'] as $element) {
+                    // Debug: Log element type and settings
+                    if (isset($element['widgetType'])) {
+                        error_log('Checking widget: ' . $element['widgetType']);
+                    }
+                    if (isset($element['settings'])) {
+                        error_log('Settings keys: ' . implode(', ', array_keys($element['settings'])));
+                    }
+
                     // Check if this element has the content
                     if (isset($element['settings'])) {
                         $settings = $element['settings'];
                         $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
                         foreach ($fields_to_check as $field) {
-                            if (isset($settings[$field]) && $settings[$field] === $line) {
-                                error_log('Found match in top level: ' . $line . ' in field ' . $field);
-                                $mapping[] = '>' . $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
-                                break 2; // Break both loops when found
+                            if (isset($settings[$field])) {
+                                error_log("Checking field {$field}: " . $settings[$field]);
+                                if ($settings[$field] === $line) {
+                                    error_log('Found match in top level: ' . $line . ' in field ' . $field);
+                                    $mapping[] = '>' . $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
+                                    $found = true;
+                                    break 2;
+                                }
                             }
                         }
                     }
@@ -206,10 +223,14 @@ function function_create_prexchor_rubrickey_1($page_id) {
                                 $settings = $nested_element['settings'];
                                 $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
                                 foreach ($fields_to_check as $field) {
-                                    if (isset($settings[$field]) && $settings[$field] === $line) {
-                                        error_log('Found match in nested level: ' . $line . ' in field ' . $field);
-                                        $mapping[] = '>' . $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
-                                        break 2; // Break both loops when found
+                                    if (isset($settings[$field])) {
+                                        error_log("Checking nested field {$field}: " . $settings[$field]);
+                                        if ($settings[$field] === $line) {
+                                            error_log('Found match in nested level: ' . $line . ' in field ' . $field);
+                                            $mapping[] = '>' . $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
+                                            $found = true;
+                                            break 2;
+                                        }
                                     }
                                 }
                             }
@@ -221,10 +242,14 @@ function function_create_prexchor_rubrickey_1($page_id) {
                                         $settings = $third_level_element['settings'];
                                         $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
                                         foreach ($fields_to_check as $field) {
-                                            if (isset($settings[$field]) && $settings[$field] === $line) {
-                                                error_log('Found match in third level: ' . $line . ' in field ' . $field);
-                                                $mapping[] = '>' . $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
-                                                break 2; // Break both loops when found
+                                            if (isset($settings[$field])) {
+                                                error_log("Checking third level field {$field}: " . $settings[$field]);
+                                                if ($settings[$field] === $line) {
+                                                    error_log('Found match in third level: ' . $line . ' in field ' . $field);
+                                                    $mapping[] = '>' . $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
+                                                    $found = true;
+                                                    break 2;
+                                                }
                                             }
                                         }
                                     }
@@ -234,6 +259,10 @@ function function_create_prexchor_rubrickey_1($page_id) {
                     }
                 }
             }
+        }
+
+        if (!$found) {
+            error_log('No match found for line: ' . $line);
         }
     }
 
