@@ -3,15 +3,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Enqueue JS for AJAX
-add_action('admin_enqueue_scripts', function($hook) {
-    if ($hook === 'toplevel_page_zurkoscreen4' || $hook === 'zurkoscreen4_page_zurkoscreen4') {
-        wp_enqueue_script('zurkovich-ai-tool', plugin_dir_url(__FILE__) . '../../../../assets/js/zurkovich-ai-tool.js', array('jquery'), null, true);
-        wp_localize_script('zurkovich-ai-tool', 'zurkovichAiTool', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('zurkovich_ai_tool_nonce'),
-        ));
-    }
+// Enqueue JS for AJAX (always load on admin)
+add_action('admin_enqueue_scripts', function() {
+    wp_enqueue_script('zurkovich-ai-tool', plugin_dir_url(__FILE__) . '../../../../assets/js/zurkovich-ai-tool.js', array('jquery'), null, true);
+    wp_localize_script('zurkovich-ai-tool', 'zurkovichAiTool', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('zurkovich_ai_tool_nonce'),
+    ));
 });
 ?>
 <div class="wrap">
