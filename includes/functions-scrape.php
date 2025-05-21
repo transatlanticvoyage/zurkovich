@@ -43,7 +43,14 @@ function zurko_extract_elementor_text($element, &$lines) {
         $output_fields = array_unique(array_merge($output_fields, ['title', 'description']));
         foreach ($output_fields as $field) {
             if (isset($settings[$field]) && is_string($settings[$field]) && trim($settings[$field]) !== '') {
-                $lines[] = wp_strip_all_tags($settings[$field]);
+                $text = wp_strip_all_tags($settings[$field]);
+                // Split the text into words and check each word
+                $words = preg_split('/\s+/', $text);
+                foreach ($words as $word) {
+                    if (preg_match('/^(y_|k_)/', $word)) {
+                        $lines[] = $word;
+                    }
+                }
             }
         }
     }
