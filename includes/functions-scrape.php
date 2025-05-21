@@ -190,13 +190,13 @@ function function_create_prexchor_rubrickey_1($page_id) {
             error_log('Settings keys: ' . implode(', ', array_keys($widget['settings'])));
             
             // Check all possible text fields
-            $text_fields = array('title', 'title_text', 'description_text', 'editor');
+            $text_fields = array('title', 'title_text', 'description_text', 'editor', 'content', 'text');
             foreach ($text_fields as $field) {
                 if (isset($widget['settings'][$field])) {
                     error_log('Checking field ' . $field . ': ' . $widget['settings'][$field]);
                     
                     // For editor field, check if the line is within the content
-                    if ($field === 'editor') {
+                    if ($field === 'editor' || $field === 'content') {
                         if (strpos($widget['settings'][$field], $line) !== false) {
                             error_log('Found match in editor content');
                             $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
@@ -216,33 +216,25 @@ function function_create_prexchor_rubrickey_1($page_id) {
             return false;
         };
 
-        // Check top level widgets
-        foreach ($elementor_data as $element) {
-            if ($check_widget($element, $line)) {
-                error_log('Found match in top level: ' . $line);
-                continue 2;
-            }
-            
-            // Check nested elements
-            if (isset($element['elements'])) {
-                foreach ($element['elements'] as $nested) {
-                    if ($check_widget($nested, $line)) {
-                        error_log('Found match in nested level: ' . $line);
-                        continue 3;
-                    }
-                    
-                    // Check third level
-                    if (isset($nested['elements'])) {
-                        foreach ($nested['elements'] as $third_level) {
-                            if ($check_widget($third_level, $line)) {
-                                error_log('Found match in third level: ' . $line);
-                                continue 4;
-                            }
-                        }
+        // Recursive function to check all levels of elements
+        $check_elements = function($elements, $line) use (&$check_widget, &$found) {
+            foreach ($elements as $element) {
+                if ($check_widget($element, $line)) {
+                    $found = true;
+                    return true;
+                }
+                
+                if (isset($element['elements'])) {
+                    if ($check_elements($element['elements'], $line)) {
+                        return true;
                     }
                 }
             }
-        }
+            return false;
+        };
+
+        // Start checking from the top level
+        $check_elements($elementor_data, $line);
         
         if (!$found) {
             error_log('No match found for line: ' . $line);
