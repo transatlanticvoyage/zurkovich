@@ -72,7 +72,7 @@ if ($selected_page_id) {
             <tr>
                 <th><label for="temprex_1_scraped">temprex_1_scraped</label><br />
                     <button type="submit" name="scrape_temprex_fresh" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">scrape temprex fresh</button>
-                    <div style="margin-top:8px;">function_scrape_temprex_1</div>
+                    <div style="margin-top:8px; font-size:11px; font-weight:normal;">function_scrape_temprex_1</div>
                 </th>
                 <td colspan="2">
                     <div style="display:flex;gap:18px;">
