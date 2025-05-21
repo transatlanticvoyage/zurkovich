@@ -11,6 +11,48 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Create database tables on plugin activation
+function zurkovich_create_tables() {
+    global $wpdb;
+    $charset_collate = $wpdb->get_charset_collate();
+
+    // Table name for driggs
+    $table_name_driggs = $wpdb->prefix . 'zurko_driggs';
+    
+    // SQL for driggs table
+    $sql_driggs = "CREATE TABLE $table_name_driggs (
+        driggs_id bigint(20) NOT NULL AUTO_INCREMENT,
+        driggs_domain varchar(255) NOT NULL,
+        driggs_industry text NOT NULL,
+        driggs_city varchar(255) NOT NULL,
+        driggs_brand_name_1 varchar(255) NOT NULL,
+        driggs_site_type_or_purpose text NOT NULL,
+        driggs_email_1 varchar(255) NOT NULL,
+        driggs_address_1 text NOT NULL,
+        driggs_phone1 varchar(50) NOT NULL,
+        PRIMARY KEY  (driggs_id)
+    ) $charset_collate;";
+
+    // Table name for pageideas
+    $table_name_pageideas = $wpdb->prefix . 'zurko_pageideas';
+    
+    // SQL for pageideas table
+    $sql_pageideas = "CREATE TABLE $table_name_pageideas (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        order_for_display_on_interface_1 int(11) NOT NULL,
+        name varchar(255) NOT NULL,
+        rel_wp_post_id_1 bigint(20) NOT NULL,
+        PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql_driggs);
+    dbDelta($sql_pageideas);
+}
+
+// Register activation hook
+register_activation_hook(__FILE__, 'zurkovich_create_tables');
+
 // Add admin menu
 function zurkovich_admin_menu() {
     // Add main menu item
