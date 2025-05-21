@@ -148,132 +148,107 @@ function function_prompt_ai_tool_and_receive_output_1($prompt) {
  * @return bool True on success, false on failure
  */
 function function_create_prexchor_rubrickey_1($page_id) {
-    // Get the ante_prexchor_rubrickey content
+    error_log('Elementor data structure:');
+    
+    // Get the content from ante_prexchor_rubrickey
     $ante_content = get_post_meta($page_id, 'ante_prexchor_rubrickey', true);
     if (empty($ante_content)) {
-        error_log('ante_prexchor_rubrickey is empty for page ' . $page_id);
-        return false;
+        error_log('ante_prexchor_rubrickey content is empty');
+        return;
     }
 
     // Get Elementor data
     $elementor_data = get_post_meta($page_id, '_elementor_data', true);
     if (empty($elementor_data)) {
-        error_log('Elementor data is empty for page ' . $page_id);
-        return false;
+        error_log('Elementor data is empty');
+        return;
     }
 
-    $data = json_decode($elementor_data, true);
-    if (!is_array($data)) {
-        error_log('Failed to decode Elementor data for page ' . $page_id);
-        return false;
+    $elementor_data = json_decode($elementor_data, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log('Failed to decode Elementor data: ' . json_last_error_msg());
+        return;
     }
 
-    // Debug: Log the structure of the first few elements
-    error_log('Elementor data structure:');
-    error_log(print_r(array_slice($data, 0, 2), true));
+    error_log(print_r($elementor_data, true));
 
-    // Split the ante content into lines and remove the '>' prefix
-    $lines = array_map(function($line) {
-        return ltrim($line, '>');
-    }, explode("\n", $ante_content));
-
-    $mapping = [];
+    $mapping = array();
+    $lines = explode("\n", $ante_content);
     
-    // Process each line
     foreach ($lines as $line) {
         $line = trim($line);
         if (empty($line)) continue;
-
+        
         error_log('Processing line: ' . $line);
         $found = false;
-
-        // Search through Elementor data for matching content
-        foreach ($data as $container) {
-            if (isset($container['elements'])) {
-                foreach ($container['elements'] as $element) {
-                    // Debug: Log element type and settings
-                    if (isset($element['widgetType'])) {
-                        error_log('Checking widget: ' . $element['widgetType']);
-                    }
-                    if (isset($element['settings'])) {
-                        error_log('Settings keys: ' . implode(', ', array_keys($element['settings'])));
-                    }
-
-                    // Check if this element has the content
-                    if (isset($element['settings'])) {
-                        $settings = $element['settings'];
-                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
-                        foreach ($fields_to_check as $field) {
-                            if (isset($settings[$field])) {
-                                error_log("Checking field {$field}: " . $settings[$field]);
-                                if ($settings[$field] === $line) {
-                                    error_log('Found match in top level: ' . $line . ' in field ' . $field);
-                                    $mapping[] = '>' . $line . ' -> .elementor-element-' . $element['id'] . ' [settings.' . $field . ']';
-                                    $found = true;
-                                    break 2;
-                                }
-                            }
+        
+        // Function to check widget settings
+        $check_widget = function($widget, $line) use (&$found, &$mapping) {
+            if (!isset($widget['settings'])) return;
+            
+            error_log('Checking widget: ' . $widget['widgetType']);
+            error_log('Settings keys: ' . implode(', ', array_keys($widget['settings'])));
+            
+            // Check all possible text fields
+            $text_fields = array('title', 'title_text', 'description_text', 'editor');
+            foreach ($text_fields as $field) {
+                if (isset($widget['settings'][$field])) {
+                    error_log('Checking field ' . $field . ': ' . $widget['settings'][$field]);
+                    
+                    // For editor field, check if the line is within the content
+                    if ($field === 'editor') {
+                        if (strpos($widget['settings'][$field], $line) !== false) {
+                            error_log('Found match in editor content');
+                            $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
+                            $found = true;
+                            return true;
+                        }
+                    } else {
+                        if ($widget['settings'][$field] === $line) {
+                            error_log('Found match in field ' . $field);
+                            $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
+                            $found = true;
+                            return true;
                         }
                     }
+                }
+            }
+            return false;
+        };
 
-                    // Check nested elements
-                    if (isset($element['elements']) && is_array($element['elements'])) {
-                        foreach ($element['elements'] as $nested_element) {
-                            if (isset($nested_element['settings'])) {
-                                $settings = $nested_element['settings'];
-                                $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
-                                foreach ($fields_to_check as $field) {
-                                    if (isset($settings[$field])) {
-                                        error_log("Checking nested field {$field}: " . $settings[$field]);
-                                        if ($settings[$field] === $line) {
-                                            error_log('Found match in nested level: ' . $line . ' in field ' . $field);
-                                            $mapping[] = '>' . $line . ' -> .elementor-element-' . $nested_element['id'] . ' [settings.' . $field . ']';
-                                            $found = true;
-                                            break 2;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Check third level elements
-                            if (isset($nested_element['elements']) && is_array($nested_element['elements'])) {
-                                foreach ($nested_element['elements'] as $third_level_element) {
-                                    if (isset($third_level_element['settings'])) {
-                                        $settings = $third_level_element['settings'];
-                                        $fields_to_check = ['title', 'title_text', 'description_text', 'editor', 'content'];
-                                        foreach ($fields_to_check as $field) {
-                                            if (isset($settings[$field])) {
-                                                error_log("Checking third level field {$field}: " . $settings[$field]);
-                                                if ($settings[$field] === $line) {
-                                                    error_log('Found match in third level: ' . $line . ' in field ' . $field);
-                                                    $mapping[] = '>' . $line . ' -> .elementor-element-' . $third_level_element['id'] . ' [settings.' . $field . ']';
-                                                    $found = true;
-                                                    break 2;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+        // Check top level widgets
+        foreach ($elementor_data as $element) {
+            if ($check_widget($element, $line)) {
+                error_log('Found match in top level: ' . $line);
+                continue 2;
+            }
+            
+            // Check nested elements
+            if (isset($element['elements'])) {
+                foreach ($element['elements'] as $nested) {
+                    if ($check_widget($nested, $line)) {
+                        error_log('Found match in nested level: ' . $line);
+                        continue 3;
+                    }
+                    
+                    // Check third level
+                    if (isset($nested['elements'])) {
+                        foreach ($nested['elements'] as $third_level) {
+                            if ($check_widget($third_level, $line)) {
+                                error_log('Found match in third level: ' . $line);
+                                continue 4;
                             }
                         }
                     }
                 }
             }
         }
-
+        
         if (!$found) {
             error_log('No match found for line: ' . $line);
         }
     }
 
-    // Save the mapping
-    $result = implode("\n", $mapping);
-    if (!empty($result)) {
-        error_log('Saving mapping for page ' . $page_id . ': ' . $result);
-        update_post_meta($page_id, 'prexchor_rubrickey', $result);
-        return true;
-    }
-    
-    error_log('No matches found for page ' . $page_id);
-    return false;
+    error_log('Saving mapping for page ' . $page_id . ': ' . implode("\n", $mapping));
+    update_post_meta($page_id, 'prexchor_rubrickey', implode("\n", $mapping));
 } 
