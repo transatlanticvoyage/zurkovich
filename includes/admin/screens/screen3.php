@@ -133,16 +133,19 @@ if ($selected_page_id) {
             <tr>
                 <th><label for="prexchor_rubrickey">prexchor_rubrickey</label><br />
                     <button type="submit" name="cache_prexchor_rubrickey" style="background:#2c4a2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">cache now</button>
-                    <button type="submit" name="generate_rubrickey" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">generate rubrickey from field above</button>
                 </th>
                 <td colspan="2">
                     <div style="display:flex;gap:18px;">
-                        <textarea id="prexchor_rubrickey" name="prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($prexchor_rubrickey); ?></textarea>
-                        <textarea id="prexchor_rubrickey_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
-                    </div>
-                    <div style="display:flex;gap:18px; margin-top:18px;">
-                        <textarea id="prexchor_rubrickey_output" style="width: 400px; height: 250px;" readonly></textarea>
-                        <textarea id="prexchor_rubrickey_output_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
+                        <div style="display:flex;flex-direction:column;gap:18px;">
+                            <textarea id="prexchor_rubrickey" name="prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($prexchor_rubrickey); ?></textarea>
+                            <button type="submit" name="generate_rubrickey" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">generate rubrickey from field above</button>
+                            <textarea id="prexchor_rubrickey_output" style="width: 400px; height: 250px;" readonly></textarea>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:18px;">
+                            <textarea id="prexchor_rubrickey_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
+                            <div style="height:42px;"></div>
+                            <textarea id="prexchor_rubrickey_output_bracketed" style="width: 400px; height: 250px;" readonly></textarea>
+                        </div>
                     </div>
                 </td>
             </tr>
