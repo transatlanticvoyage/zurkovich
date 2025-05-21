@@ -69,8 +69,8 @@ function zurkovich_admin_menu() {
     // Add submenu pages
     add_submenu_page(
         'zurkovich', // Parent slug
-        'Screen 1', // Page title
-        'Screen 1', // Menu title
+        'Screen 1 - API Keys', // Page title
+        'Screen 1 - API Keys', // Menu title
         'manage_options', // Capability
         'zurkovich', // Menu slug (same as parent for first item)
         'zurkovich_screen1' // Function to display the page
