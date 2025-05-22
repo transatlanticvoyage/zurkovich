@@ -290,16 +290,10 @@ function function_inject_content_1($page_id, $zeeprex_content) {
                 // Check all possible text fields
                 $fields = ['title', 'title_text', 'description_text', 'editor', 'content', 'text'];
                 foreach ($fields as $field) {
-                    if (isset($el['settings'][$field])) {
-                        $val = wp_strip_all_tags($el['settings'][$field]);
+                    if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
-                            if ($el['settings'][$field] === $code || $val === $code) {
-                                // For editor/content fields, keep HTML if present in user input
-                                if ($field === 'editor' || $field === 'content') {
-                                    $el['settings'][$field] = $content;
-                                } else {
-                                    $el['settings'][$field] = $content;
-                                }
+                            if (strpos($el['settings'][$field], $code) !== false) {
+                                $el['settings'][$field] = str_replace($code, $content, $el['settings'][$field]);
                             }
                         }
                     }
