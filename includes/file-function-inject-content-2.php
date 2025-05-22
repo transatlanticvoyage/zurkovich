@@ -15,25 +15,42 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         return false;
     }
     
+    error_log('Raw content first 200 chars: ' . substr($zeeprex_content, 0, 200));
+    
     // Parse mappings
     $map = array();
     $lines = preg_split('/\r\n|\r|\n/', $zeeprex_content);
     $key = '';
     
-    foreach ($lines as $line) {
+    foreach ($lines as $line_num => $line) {
         $line = trim($line);
+        error_log('Line ' . ($line_num + 1) . ': ' . $line);
+        
+        // Check if the line starts with &gt; (HTML encoded >)
+        if (strpos($line, '&gt;') === 0) {
+            $line = '>' . substr($line, 4);
+            error_log('Decoded HTML entity to: ' . $line);
+        }
+        
         if (preg_match('/^>y_([^\s]+)/', $line, $m)) {
             $key = 'y_' . $m[1];
             $map[$key] = '';
+            error_log('Found y_ code: ' . $key);
         } elseif (preg_match('/^>Y_([^\s]+)/', $line, $m)) {
             $key = 'Y_' . $m[1];
             $map[$key] = '';
+            error_log('Found Y_ code: ' . $key);
         } elseif (preg_match('/^>/', $line)) {
             $key = '';
+            error_log('Ignoring non-y code: ' . $line);
         } elseif ($key !== '') {
             $map[$key] .= ($map[$key] === '' ? '' : "\n") . $line;
+            error_log('Added content for ' . $key . ': ' . substr($line, 0, 50) . '...');
         }
     }
+    
+    error_log('Found ' . count($map) . ' codes to process');
+    error_log('Codes: ' . implode(', ', array_keys($map)));
     
     if (empty($map)) {
         return false;
@@ -66,6 +83,7 @@ function process_elements($elements, $map) {
                 if (is_string($sval)) {
                     foreach ($map as $key => $val) {
                         if ($sval === $key) {
+                            error_log('Found match in ' . $skey . ': ' . $key);
                             $el['settings'][$skey] = $val;
                         }
                     }
