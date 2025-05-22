@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) {
  */
 function function_inject_content_2($page_id, $zeeprex_content) {
     error_log('Starting function_inject_content_2 for page_id: ' . $page_id);
+    error_log('Received content: ' . substr($zeeprex_content, 0, 200) . '...');
     
     if (empty($zeeprex_content)) {
         error_log('Empty zeeprex content');
@@ -25,8 +26,6 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         error_log('No Elementor data found for page_id: ' . $page_id);
         return false;
     }
-    
-    error_log('Raw Elementor data: ' . substr($elementor_data, 0, 500) . '...');
     
     $data = json_decode($elementor_data, true);
     if (!is_array($data)) {
@@ -41,8 +40,10 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     
     error_log('Processing zeeprex content lines: ' . count($lines));
     
-    foreach ($lines as $line) {
+    foreach ($lines as $line_num => $line) {
         $line = rtrim($line);
+        error_log('Processing line ' . ($line_num + 1) . ': ' . $line);
+        
         // Look for lines starting with >y_ or >Y_
         if (preg_match('/^>y_([^\s]+)/', $line, $m)) {
             $current_code = 'y_' . $m[1];
@@ -55,8 +56,10 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         } elseif (preg_match('/^>/', $line)) {
             // Ignore other codes starting with >
             $current_code = null;
+            error_log('Ignoring non-y code: ' . $line);
         } elseif ($current_code !== null) {
             $map[$current_code] .= ($map[$current_code] === '' ? '' : "\n") . $line;
+            error_log('Added content for code ' . $current_code . ': ' . substr($line, 0, 50) . '...');
         }
     }
     
