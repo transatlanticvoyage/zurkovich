@@ -88,12 +88,15 @@ function function_inject_content_2($page_id, $zeeprex_content) {
 
     error_log('Updated Elementor data: ' . substr($updated_data, 0, 200) . '...');
 
-    // Update the post using wp_update_post
-    $update_result = wp_update_post(array(
+    // Update using both methods
+    $meta_update = update_post_meta($page_id, '_elementor_data', $updated_data);
+    error_log('Update post meta result: ' . ($meta_update ? 'success' : 'failed'));
+
+    $post_update = wp_update_post(array(
         'ID' => $page_id,
         'post_content' => $updated_data
     ));
-    error_log('Update post result: ' . ($update_result ? 'success' : 'failed'));
+    error_log('Update post result: ' . ($post_update ? 'success' : 'failed'));
 
     // Clear Elementor cache
     if (class_exists('\Elementor\Plugin')) {
@@ -101,7 +104,7 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         error_log('Cleared Elementor cache');
     }
 
-    return true;
+    return ($meta_update && $post_update);
 }
 
 /**
