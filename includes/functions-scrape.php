@@ -292,8 +292,19 @@ function function_inject_content_1($page_id, $zeeprex_content) {
                 foreach ($fields as $field) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
-                            // Inject user content exactly as provided, no auto-wrapping or modification
                             if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
+                                // For editor/content fields, wrap plain text in <p>...</p> if no HTML tags
+                                if (($field === 'editor' || $field === 'content') && strpos($content, '<') === false && strpos($content, '>') === false) {
+                                    // Split by double newlines or single newlines
+                                    $paragraphs = preg_split('/\r?\n/', $content);
+                                    $content = '';
+                                    foreach ($paragraphs as $p) {
+                                        $p = trim($p);
+                                        if ($p !== '') {
+                                            $content .= '<p>' . htmlspecialchars($p, ENT_QUOTES) . '</p>';
+                                        }
+                                    }
+                                }
                                 $el['settings'][$field] = $content;
                             }
                         }
