@@ -44,7 +44,7 @@ if (isset($_POST['inject_zeeprex_content_2']) && $selected_page_id) {
                 <td style="padding-top: 8px;">
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <a href="<?php echo get_edit_post_link($selected_page_id); ?>" target="_blank">editor - regular wordpress</a>
-                        <a href="<?php echo get_edit_post_link($selected_page_id); ?>?elementor" target="_blank">editor - elementor</a>
+                        <a href="<?php echo get_edit_post_link($selected_page_id); ?>&action=elementor" target="_blank">editor - elementor</a>
                         <a href="<?php echo get_permalink($selected_page_id); ?>" target="_blank">view frontend of page</a>
                     </div>
                 </td>

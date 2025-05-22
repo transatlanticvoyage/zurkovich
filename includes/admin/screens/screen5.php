@@ -38,6 +38,7 @@ if (isset($_POST['generate_rubrickey']) && $selected_page_id) {
     $elementor_data = get_post_meta($selected_page_id, '_elementor_data', true);
     if (!empty($elementor_data)) {
         function_create_prexchor_rubrickey_1($selected_page_id);
+        function_create_prexchor_rubrickey_2($selected_page_id);
     }
 }
 
@@ -123,6 +124,18 @@ if ($selected_page_id) {
                     <input type="radio" name="kardwaj_radio" value="manual" style="margin-left:8px;">
                 </td>
             </tr>
+            <?php if ($selected_page_id): ?>
+            <tr>
+                <th></th>
+                <td style="padding-top: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="<?php echo get_edit_post_link($selected_page_id); ?>" target="_blank">editor - regular wordpress</a>
+                        <a href="<?php echo get_edit_post_link($selected_page_id); ?>&action=elementor" target="_blank">editor - elementor</a>
+                        <a href="<?php echo get_permalink($selected_page_id); ?>" target="_blank">view frontend of page</a>
+                    </div>
+                </td>
+            </tr>
+            <?php endif; ?>
         </tbody></table>
         <hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;">
         <table class="form-table"><tbody>
@@ -173,6 +186,8 @@ if ($selected_page_id) {
                             <textarea id="ante_prexchor_rubrickey" name="ante_prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($ante_prexchor_rubrickey); ?></textarea>
                             <button type="submit" name="cache_prexchor_rubrickey" style="background:#2c4a2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">cache now</button>
                             <button type="submit" name="generate_rubrickey" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">generate rubrickey from field above</button>
+                            <div style="margin-top:8px; font-size:11px; font-weight:normal;">function_create_prexchor_rubrickey_1</div>
+                            <div style="margin-top:4px; font-size:11px; font-weight:normal;">function_create_prexchor_rubrickey_2</div>
                             <div style="font-weight:bold;">prexchor_rubrickey</div>
                             <textarea id="prexchor_rubrickey_output" name="prexchor_rubrickey_output" style="width: 400px; height: 250px;" readonly><?php echo esc_textarea($prexchor_rubrickey); ?></textarea>
                         </div>
