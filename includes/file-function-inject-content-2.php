@@ -12,10 +12,7 @@ if (!defined('ABSPATH')) {
  * @return bool True on success, false on failure.
  */
 function function_inject_content_2($page_id, $zeeprex_content) {
-    error_log('Starting function_inject_content_2 for page_id: ' . $page_id);
-    
     if (empty($zeeprex_content)) {
-        error_log('Empty zeeprex content');
         return false;
     }
     
@@ -25,13 +22,11 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     // Get Elementor data
     $elementor_data = get_post_meta($page_id, '_elementor_data', true);
     if (empty($elementor_data)) {
-        error_log('No Elementor data found for page_id: ' . $page_id);
         return false;
     }
     
     $data = json_decode($elementor_data, true);
     if (!is_array($data)) {
-        error_log('Failed to decode Elementor data');
         return false;
     }
 
@@ -58,7 +53,6 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     }
     
     if (empty($map)) {
-        error_log('No y_ codes found in content');
         return false;
     }
 
@@ -72,12 +66,7 @@ function function_inject_content_2($page_id, $zeeprex_content) {
                         if (isset($el['settings']['title'])) {
                             foreach ($map as $code => $content) {
                                 if ($el['settings']['title'] === $code) {
-                                    // Preserve existing settings
                                     $el['settings']['title'] = $content;
-                                    // Keep typography and other settings
-                                    if (!isset($el['settings']['typography_typography'])) {
-                                        $el['settings']['typography_typography'] = 'custom';
-                                    }
                                 }
                             }
                         }
@@ -87,12 +76,7 @@ function function_inject_content_2($page_id, $zeeprex_content) {
                         if (isset($el['settings']['editor'])) {
                             foreach ($map as $code => $content) {
                                 if (strpos($el['settings']['editor'], $code) !== false) {
-                                    // Preserve existing settings
                                     $el['settings']['editor'] = str_replace($code, $content, $el['settings']['editor']);
-                                    // Keep typography and other settings
-                                    if (!isset($el['settings']['typography_typography'])) {
-                                        $el['settings']['typography_typography'] = 'custom';
-                                    }
                                 }
                             }
                         }
@@ -102,24 +86,14 @@ function function_inject_content_2($page_id, $zeeprex_content) {
                         if (isset($el['settings']['title_text'])) {
                             foreach ($map as $code => $content) {
                                 if ($el['settings']['title_text'] === $code) {
-                                    // Preserve existing settings
                                     $el['settings']['title_text'] = $content;
-                                    // Keep typography and other settings
-                                    if (!isset($el['settings']['title_typography_typography'])) {
-                                        $el['settings']['title_typography_typography'] = 'custom';
-                                    }
                                 }
                             }
                         }
                         if (isset($el['settings']['description_text'])) {
                             foreach ($map as $code => $content) {
                                 if ($el['settings']['description_text'] === $code) {
-                                    // Preserve existing settings
                                     $el['settings']['description_text'] = $content;
-                                    // Keep typography and other settings
-                                    if (!isset($el['settings']['description_typography_typography'])) {
-                                        $el['settings']['description_typography_typography'] = 'custom';
-                                    }
                                 }
                             }
                         }
@@ -134,17 +108,19 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     
     $update_widgets($data);
 
-    // Save the updated data directly to post meta
-    $json_data = wp_json_encode($data);
-    $result = update_post_meta($page_id, '_elementor_data', $json_data);
+    // Use Elementor's API to save the data
+    if (class_exists('\Elementor\Plugin')) {
+        $document = \Elementor\Plugin::$instance->documents->get($page_id);
+        if ($document) {
+            $document->save([
+                'elements' => $data,
+                'settings' => [
+                    'post_status' => 'publish',
+                ],
+            ]);
+            return true;
+        }
+    }
     
-    // Ensure Elementor meta fields are set
-    update_post_meta($page_id, '_elementor_edit_mode', 'builder');
-    update_post_meta($page_id, '_elementor_template_type', 'page');
-
-    // Clear caches
-    wp_cache_delete($page_id, 'post_meta');
-    clean_post_cache($page_id);
-    
-    return true;
+    return false;
 } 
