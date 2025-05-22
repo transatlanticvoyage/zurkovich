@@ -88,19 +88,15 @@ function function_inject_content_2($page_id, $zeeprex_content) {
 
     error_log('Updated Elementor data: ' . substr($updated_data, 0, 200) . '...');
 
-    // Update using post meta with cache clearing
+    // Update using post meta with Elementor cache clearing
     $update_result = update_post_meta($page_id, '_elementor_data', $updated_data);
     error_log('Update post meta result: ' . ($update_result ? 'success' : 'failed'));
 
-    // Clear WordPress cache
-    wp_cache_delete($page_id, 'post_meta');
-    clean_post_cache($page_id);
-    error_log('Cleared WordPress cache');
-
-    // Clear Elementor cache
+    // Clear Elementor caches
     if (class_exists('\Elementor\Plugin')) {
         \Elementor\Plugin::$instance->files_manager->clear_cache();
-        error_log('Cleared Elementor cache');
+        \Elementor\Plugin::$instance->posts_css_manager->clear_cache();
+        error_log('Cleared Elementor caches');
     }
 
     return $update_result;
