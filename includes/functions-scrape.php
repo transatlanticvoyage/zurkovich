@@ -250,52 +250,21 @@ function function_create_prexchor_rubrickey_1($page_id) {
     error_log('Saving mapping for page ' . $page_id . ': ' . implode("\n", $mapping));
     update_post_meta($page_id, 'prexchor_rubrickey', implode("\n", $mapping));
 
-    // Properly handle Elementor data preservation
-    if (class_exists('Elementor\\Plugin')) {
-        try {
-            // Get the document
-            $document = \Elementor\Plugin::instance()->documents->get($page_id);
-            if (!$document) {
-                error_log('Could not get Elementor document for page ' . $page_id);
-                return;
-            }
-
-            // Get the current data
-            $current_data = $document->get_elements_data();
-            if (empty($current_data)) {
-                error_log('No Elementor data found for page ' . $page_id);
-                return;
-            }
-
-            // Update the document using Elementor's data manager
-            $document->save([
-                'elements' => $current_data,
-                'settings' => $document->get_settings()
-            ]);
-
-            // Clear all caches
-            if (method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
-                \Elementor\Plugin::instance()->files_manager->clear_cache();
-            }
-
-            // Regenerate CSS
-            $css_file = new \Elementor\Core\Files\CSS\Post($page_id);
-            $css_file->update();
-
-            // Clear WordPress cache
-            if (function_exists('wp_cache_clear_cache')) {
-                wp_cache_clear_cache();
-            }
-
-            // Update post meta directly to ensure data is saved
-            update_post_meta($page_id, '_elementor_data', wp_json_encode($current_data));
-            update_post_meta($page_id, '_elementor_edit_mode', 'builder');
-            update_post_meta($page_id, '_elementor_template_type', 'page');
-            update_post_meta($page_id, '_elementor_version', \Elementor\Plugin::instance()->get_version());
-
-        } catch (Throwable $e) {
-            error_log('Elementor data preservation error: ' . $e->getMessage());
-        }
+    // Save the original Elementor data back without modification
+    update_post_meta($page_id, '_elementor_data', wp_json_encode($elementor_data));
+    
+    // Ensure Elementor meta fields are set
+    update_post_meta($page_id, '_elementor_edit_mode', 'builder');
+    update_post_meta($page_id, '_elementor_template_type', 'page');
+    
+    // Clear caches
+    if (function_exists('wp_cache_clear_cache')) {
+        wp_cache_clear_cache();
+    }
+    
+    // Clear Elementor cache if available
+    if (class_exists('Elementor\\Plugin') && method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
+        \Elementor\Plugin::instance()->files_manager->clear_cache();
     }
 }
 
