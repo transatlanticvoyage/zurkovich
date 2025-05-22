@@ -108,19 +108,38 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     
     $update_widgets($data);
 
-    // Use Elementor's API to save the data
-    if (class_exists('\Elementor\Plugin')) {
-        $document = \Elementor\Plugin::$instance->documents->get($page_id);
-        if ($document) {
-            $document->save([
-                'elements' => $data,
-                'settings' => [
-                    'post_status' => 'publish',
-                ],
-            ]);
-            return true;
-        }
+    // Get all existing post meta
+    $all_meta = get_post_meta($page_id);
+    
+    // Prepare the post data
+    $post_data = array(
+        'ID' => $page_id,
+        'post_status' => 'publish'
+    );
+    
+    // Update the post
+    wp_update_post($post_data);
+    
+    // Update Elementor data
+    update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+    
+    // Ensure Elementor meta fields are preserved
+    if (isset($all_meta['_elementor_edit_mode'])) {
+        update_post_meta($page_id, '_elementor_edit_mode', $all_meta['_elementor_edit_mode'][0]);
+    }
+    if (isset($all_meta['_elementor_template_type'])) {
+        update_post_meta($page_id, '_elementor_template_type', $all_meta['_elementor_template_type'][0]);
+    }
+    if (isset($all_meta['_elementor_version'])) {
+        update_post_meta($page_id, '_elementor_version', $all_meta['_elementor_version'][0]);
+    }
+    if (isset($all_meta['_elementor_page_settings'])) {
+        update_post_meta($page_id, '_elementor_page_settings', $all_meta['_elementor_page_settings'][0]);
     }
     
-    return false;
+    // Clear caches
+    wp_cache_delete($page_id, 'post_meta');
+    clean_post_cache($page_id);
+    
+    return true;
 } 
