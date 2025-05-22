@@ -13,12 +13,15 @@ if (!defined('ABSPATH')) {
  */
 function function_inject_content_2($page_id, $zeeprex_content) {
     error_log('Starting function_inject_content_2 for page_id: ' . $page_id);
-    error_log('Received content: ' . substr($zeeprex_content, 0, 200) . '...');
     
     if (empty($zeeprex_content)) {
         error_log('Empty zeeprex content');
         return false;
     }
+    
+    // Decode HTML entities in the content
+    $zeeprex_content = html_entity_decode($zeeprex_content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    error_log('Decoded content: ' . substr($zeeprex_content, 0, 200) . '...');
     
     // Get Elementor data
     $elementor_data = get_post_meta($page_id, '_elementor_data', true);
