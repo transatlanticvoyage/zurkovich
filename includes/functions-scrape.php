@@ -250,49 +250,51 @@ function function_create_prexchor_rubrickey_1($page_id) {
     error_log('Saving mapping for page ' . $page_id . ': ' . implode("\n", $mapping));
     update_post_meta($page_id, 'prexchor_rubrickey', implode("\n", $mapping));
 
-    // Properly handle Elementor CSS regeneration
+    // Properly handle Elementor data preservation
     if (class_exists('Elementor\\Plugin')) {
         try {
+            // Get the document
             $document = \Elementor\Plugin::instance()->documents->get($page_id);
-            if ($document) {
-                // Get the original data structure
-                $original_data = get_post_meta($page_id, '_elementor_data', true);
-                $original_elements = json_decode($original_data, true);
-                
-                // Save the original data back to maintain structure
-                $document->save([
-                    'elements' => $original_elements,
-                    'settings' => $document->get_settings()
-                ]);
-                
-                // Clear cache
-                if (method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
-                    \Elementor\Plugin::instance()->files_manager->clear_cache();
-                }
-                
-                // Force CSS regeneration
-                $css_file = new \Elementor\Core\Files\CSS\Post($page_id);
-                $css_file->update();
-                
-                // Clear page cache
-                if (function_exists('wp_cache_clear_cache')) {
-                    wp_cache_clear_cache();
-                }
-                
-                // Clear Elementor cache again
-                \Elementor\Plugin::instance()->files_manager->clear_cache();
-                
-                // Regenerate CSS one final time
-                $css_file->update();
-                
-                // Save the document one final time to ensure everything is in sync
-                $document->save([
-                    'elements' => $original_elements,
-                    'settings' => $document->get_settings()
-                ]);
+            if (!$document) {
+                error_log('Could not get Elementor document for page ' . $page_id);
+                return;
             }
+
+            // Get the current data
+            $current_data = $document->get_elements_data();
+            if (empty($current_data)) {
+                error_log('No Elementor data found for page ' . $page_id);
+                return;
+            }
+
+            // Update the document using Elementor's data manager
+            $document->save([
+                'elements' => $current_data,
+                'settings' => $document->get_settings()
+            ]);
+
+            // Clear all caches
+            if (method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
+                \Elementor\Plugin::instance()->files_manager->clear_cache();
+            }
+
+            // Regenerate CSS
+            $css_file = new \Elementor\Core\Files\CSS\Post($page_id);
+            $css_file->update();
+
+            // Clear WordPress cache
+            if (function_exists('wp_cache_clear_cache')) {
+                wp_cache_clear_cache();
+            }
+
+            // Update post meta directly to ensure data is saved
+            update_post_meta($page_id, '_elementor_data', wp_json_encode($current_data));
+            update_post_meta($page_id, '_elementor_edit_mode', 'builder');
+            update_post_meta($page_id, '_elementor_template_type', 'page');
+            update_post_meta($page_id, '_elementor_version', \Elementor\Plugin::instance()->get_version());
+
         } catch (Throwable $e) {
-            error_log('Elementor CSS regeneration error: ' . $e->getMessage());
+            error_log('Elementor data preservation error: ' . $e->getMessage());
         }
     }
 }
