@@ -43,9 +43,9 @@ if (isset($_POST['generate_rubrickey']) && $selected_page_id) {
 
 // Handle inject content action for zeeprex_submit
 if (isset($_POST['inject_zeeprex_content']) && $selected_page_id) {
-    $zeeprex_content = isset($_POST['zeeprex_content']) ? sanitize_textarea_field($_POST['zeeprex_content']) : '';
+    $zeeprex_content = isset($_POST['zeeprex_content']) ? wp_kses_post($_POST['zeeprex_content']) : '';
     update_post_meta($selected_page_id, 'zeeprex_submit', $zeeprex_content);
-    // Inject content into Elementor widgets
+    
     if (!empty($zeeprex_content)) {
         function_inject_content_1($selected_page_id, $zeeprex_content);
     }
