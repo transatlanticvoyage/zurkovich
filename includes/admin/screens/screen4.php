@@ -53,6 +53,7 @@ if (isset($_POST['inject_zeeprex_content_2']) && $selected_page_id) {
             <tr>
                 <th><label for="zeeprex_submit">zeeprex_submit</label></th>
                 <td>
+                    <div style="margin-bottom: 8px; color: #666;">Make sure your codes are preceded by a "#" symbol</div>
                     <textarea id="zeeprex_submit" name="zeeprex_content" style="width: 400px; height: 100px;"></textarea>
                     <br>
                     <button type="submit" name="inject_zeeprex_content_2" style="background:#800000;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">run function_inject_content_2</button>
