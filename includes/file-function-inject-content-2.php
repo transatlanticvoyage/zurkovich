@@ -11,7 +11,10 @@ if (!defined('ABSPATH')) {
  * @return bool True on success, false on failure.
  */
 function function_inject_content_2($page_id, $zeeprex_content) {
+    error_log('Starting function_inject_content_2 for page_id: ' . $page_id);
+    
     if (empty($zeeprex_content)) {
+        error_log('Empty zeeprex content');
         return false;
     }
     
@@ -20,36 +23,53 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     $lines = preg_split('/\r\n|\r|\n/', $zeeprex_content);
     $key = '';
     
+    error_log('Processing ' . count($lines) . ' lines of content');
+    
     foreach ($lines as $line) {
         if (preg_match('/^>y_([^\s]+)/', trim($line), $m)) {
             $key = 'y_' . $m[1];
             $map[$key] = '';
+            error_log('Found y_ code: ' . $key);
         } elseif (preg_match('/^>Y_([^\s]+)/', trim($line), $m)) {
             $key = 'Y_' . $m[1];
             $map[$key] = '';
+            error_log('Found Y_ code: ' . $key);
         } elseif (preg_match('/^>/', trim($line))) {
             $key = '';
+            error_log('Ignoring non-y code: ' . trim($line));
         } elseif ($key !== '') {
             $map[$key] .= ($map[$key] === '' ? '' : "\n") . $line;
+            error_log('Added content for ' . $key . ': ' . substr($line, 0, 50) . '...');
         }
     }
     
+    error_log('Found ' . count($map) . ' codes to process');
+    error_log('Codes: ' . implode(', ', array_keys($map)));
+    
     if (empty($map)) {
+        error_log('No codes found in content');
         return false;
     }
 
     // Save mapping meta
     update_post_meta($page_id, 'zeeprex_map', $map);
+    error_log('Saved mapping to zeeprex_map');
 
     // Fetch and update Elementor JSON data
     $data = get_post_meta($page_id, '_elementor_data', true);
     if ($data) {
         $elements = is_string($data) ? json_decode($data, true) : $data;
         if (is_array($elements)) {
+            error_log('Processing Elementor data');
             $new = process_elements($elements, $map);
             update_post_meta($page_id, '_elementor_data', wp_json_encode($new));
+            error_log('Updated Elementor data');
             return true;
+        } else {
+            error_log('Failed to decode Elementor data');
         }
+    } else {
+        error_log('No Elementor data found for page_id: ' . $page_id);
     }
     
     return false;
@@ -65,6 +85,7 @@ function process_elements($elements, $map) {
                 if (is_string($sval)) {
                     foreach ($map as $key => $val) {
                         if (strpos($sval, $key) !== false) {
+                            error_log('Found match in ' . $skey . ': ' . $key);
                             $el['settings'][$skey] = str_replace($key, $val, $sval);
                         }
                     }
