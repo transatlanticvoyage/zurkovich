@@ -88,9 +88,12 @@ function function_inject_content_2($page_id, $zeeprex_content) {
 
     error_log('Updated Elementor data: ' . substr($updated_data, 0, 200) . '...');
 
-    // Update the post meta
-    $update_result = update_post_meta($page_id, '_elementor_data', $updated_data);
-    error_log('Update post meta result: ' . ($update_result ? 'success' : 'failed'));
+    // Update the post using wp_update_post
+    $update_result = wp_update_post(array(
+        'ID' => $page_id,
+        'post_content' => $updated_data
+    ));
+    error_log('Update post result: ' . ($update_result ? 'success' : 'failed'));
 
     // Clear Elementor cache
     if (class_exists('\Elementor\Plugin')) {
