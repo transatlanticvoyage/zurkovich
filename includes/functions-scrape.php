@@ -305,6 +305,18 @@ function function_inject_content_1($page_id, $zeeprex_content) {
         }
     };
     $update_widgets($data);
-    update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+
+    // Use Elementor's API to update the data and trigger all hooks
+    if (class_exists('Elementor\\Plugin')) {
+        $document = \Elementor\Plugin::instance()->documents->get($page_id);
+        if ($document) {
+            $document->save(['elements' => $data]);
+            $document->update_meta('_elementor_data', wp_json_encode($data));
+            $document->save();
+        }
+    } else {
+        // fallback: update_post_meta as before
+        update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+    }
     return true;
 } 
