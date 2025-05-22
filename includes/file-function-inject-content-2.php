@@ -88,22 +88,22 @@ function function_inject_content_2($page_id, $zeeprex_content) {
 
     error_log('Updated Elementor data: ' . substr($updated_data, 0, 200) . '...');
 
-    // Update using post meta with full cache clearing
-    $update_result = update_post_meta($page_id, '_elementor_data', $updated_data);
-    error_log('Update post meta result: ' . ($update_result ? 'success' : 'failed'));
-
-    // Clear all WordPress caches
-    wp_cache_flush();
-    error_log('Cleared WordPress cache');
-
-    // Clear all Elementor caches
+    // Use Elementor's internal save mechanism
     if (class_exists('\Elementor\Plugin')) {
-        \Elementor\Plugin::$instance->files_manager->clear_cache();
-        \Elementor\Plugin::$instance->posts_css_manager->clear_cache();
-        error_log('Cleared Elementor caches');
+        $document = \Elementor\Plugin::$instance->documents->get($page_id);
+        if ($document) {
+            // Update the document data
+            $document->save([
+                'elements' => $elements,
+                'settings' => $document->get_settings()
+            ]);
+            error_log('Saved using Elementor document save');
+            return true;
+        }
     }
 
-    return $update_result;
+    error_log('Failed to save using Elementor document save');
+    return false;
 }
 
 /**
