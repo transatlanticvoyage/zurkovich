@@ -374,9 +374,12 @@ function function_inject_content_1($page_id, $zeeprex_content) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
                             if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
-                                // For text editor widgets, ensure HTML is properly preserved
-                                if ($el['widgetType'] === 'text-editor' && ($field === 'editor' || $field === 'content')) {
-                                    $el['settings'][$field] = wp_kses_post($content);
+                                // For text editor content, ensure HTML is preserved
+                                if ($field === 'editor' || $field === 'content') {
+                                    // Store the raw HTML content directly
+                                    $el['settings'][$field] = $content;
+                                    // Also ensure the widget knows it contains HTML
+                                    $el['settings']['text_editor'] = $content;
                                 } else {
                                     $el['settings'][$field] = $content;
                                 }
