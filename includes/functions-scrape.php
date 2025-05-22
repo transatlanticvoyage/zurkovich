@@ -374,23 +374,7 @@ function function_inject_content_1($page_id, $zeeprex_content) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
                             if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
-                                // Only wrap in paragraph tags if the content doesn't contain HTML
-                                if (($field === 'editor' || $field === 'content') && 
-                                    strpos($content, '<') === false && 
-                                    strpos($content, '>') === false) {
-                                    // Split by double newlines or single newlines
-                                    $paragraphs = preg_split('/\r?\n/', $content);
-                                    $content = '';
-                                    foreach ($paragraphs as $p) {
-                                        $p = trim($p);
-                                        if ($p !== '') {
-                                            $content .= '<p>' . htmlspecialchars($p, ENT_QUOTES) . '</p>';
-                                        }
-                                    }
-                                } else {
-                                    // If content contains HTML, use it as is
-                                    $content = $content;
-                                }
+                                // Directly use the content as provided, preserving all HTML
                                 $el['settings'][$field] = $content;
                             }
                         }
