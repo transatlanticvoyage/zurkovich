@@ -141,9 +141,16 @@ function process_elements($elements, $map) {
                     case 'text-editor':
                         if (isset($original_settings['editor'])) {
                             foreach ($map as $key => $val) {
-                                if ($original_settings['editor'] === $key) {
+                                // Check for the code both with and without HTML tags
+                                $code_with_tags = '<p>' . $key . '</p>';
+                                if ($original_settings['editor'] === $key || $original_settings['editor'] === $code_with_tags) {
                                     error_log('Found match in text-editor editor: ' . $key);
-                                    $el['settings']['editor'] = $val;
+                                    // If the original had HTML tags, wrap the new content in them
+                                    if (strpos($original_settings['editor'], '<p>') !== false) {
+                                        $el['settings']['editor'] = '<p>' . $val . '</p>';
+                                    } else {
+                                        $el['settings']['editor'] = $val;
+                                    }
                                     // Preserve typography settings
                                     if (isset($original_settings['typography_typography'])) {
                                         $el['settings']['typography_typography'] = $original_settings['typography_typography'];
