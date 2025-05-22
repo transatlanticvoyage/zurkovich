@@ -41,9 +41,13 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     
     foreach ($lines as $line) {
         $line = rtrim($line);
-        // Only look for codes starting with >y_ or >Y_
-        if (preg_match('/^>([yY][^\s]*)/', $line, $m)) {
-            $current_code = $m[1];
+        // Look for lines starting with >y_ or >Y_
+        if (preg_match('/^>y_([^\s]+)/', $line, $m)) {
+            $current_code = 'y_' . $m[1];
+            $map[$current_code] = '';
+            error_log('Found code: ' . $current_code);
+        } elseif (preg_match('/^>Y_([^\s]+)/', $line, $m)) {
+            $current_code = 'Y_' . $m[1];
             $map[$current_code] = '';
             error_log('Found code: ' . $current_code);
         } elseif (preg_match('/^>/', $line)) {
