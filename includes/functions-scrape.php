@@ -292,8 +292,8 @@ function function_inject_content_1($page_id, $zeeprex_content) {
                 foreach ($fields as $field) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
-                            if (strpos($el['settings'][$field], $code) !== false) {
-                                $el['settings'][$field] = str_replace($code, $content, $el['settings'][$field]);
+                            if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
+                                $el['settings'][$field] = $content;
                             }
                         }
                     }
