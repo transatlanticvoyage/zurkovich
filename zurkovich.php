@@ -118,10 +118,10 @@ function zurkovich_admin_menu() {
 
     add_submenu_page(
         'zurkoscreen1',
-        'Screen 4 - AI Tool Generate Content',
-        'Screen 4 - AI Tool Generate Content',
+        'Screen 4 - Inject Content 2',
+        'Screen 4 - Inject Content 2',
         'manage_options',
-        'zurkoscreen4', // updated
+        'zurkoscreen4',
         'zurkovich_screen4'
     );
 

@@ -38,6 +38,16 @@ if (isset($_POST['inject_zeeprex_content_2']) && $selected_page_id) {
                     </select>
                 </td>
             </tr>
+            <?php if ($selected_page_id): ?>
+            <tr>
+                <th></th>
+                <td style="padding-top: 8px;">
+                    <a href="<?php echo get_edit_post_link($selected_page_id); ?>" target="_blank" style="margin-right: 16px;">editor - regular wordpress</a>
+                    <a href="<?php echo get_edit_post_link($selected_page_id); ?>?elementor" target="_blank" style="margin-right: 16px;">editor - elementor</a>
+                    <a href="<?php echo get_permalink($selected_page_id); ?>" target="_blank">view frontend of page</a>
+                </td>
+            </tr>
+            <?php endif; ?>
             <tr>
                 <th><label for="zeeprex_submit">zeeprex_submit</label></th>
                 <td>
