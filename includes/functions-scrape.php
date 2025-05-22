@@ -209,7 +209,7 @@ function function_create_prexchor_rubrickey_1($page_id) {
                             $found = true;
                             return true;
                         }
-                    } else {
+                    
                         if ($widget['settings'][$field] === $line) {
                             error_log('Found match in field ' . $field);
                             $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
@@ -249,6 +249,31 @@ function function_create_prexchor_rubrickey_1($page_id) {
 
     error_log('Saving mapping for page ' . $page_id . ': ' . implode("\n", $mapping));
     update_post_meta($page_id, 'prexchor_rubrickey', implode("\n", $mapping));
+
+    // Properly handle Elementor CSS regeneration
+    if (class_exists('Elementor\\Plugin')) {
+        try {
+            $document = \Elementor\Plugin::instance()->documents->get($page_id);
+            if ($document) {
+                // Regenerate CSS
+                $document->save([
+                    'elements' => $elementor_data,
+                    'settings' => $document->get_settings()
+                ]);
+                
+                // Clear cache
+                if (method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
+                    \Elementor\Plugin::instance()->files_manager->clear_cache();
+                }
+                
+                // Force CSS regeneration
+                $css_file = new \Elementor\Core\Files\CSS\Post($page_id);
+                $css_file->update();
+            }
+        } catch (Throwable $e) {
+            error_log('Elementor CSS regeneration error: ' . $e->getMessage());
+        }
+    }
 }
 
 /**
