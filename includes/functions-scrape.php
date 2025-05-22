@@ -308,11 +308,30 @@ function function_inject_content_1($page_id, $zeeprex_content) {
 
     // Use Elementor's API to update the data and trigger all hooks
     if (class_exists('Elementor\\Plugin')) {
-        $document = \Elementor\Plugin::instance()->documents->get($page_id);
-        if ($document) {
-            $document->save(['elements' => $data]);
-            $document->update_meta('_elementor_data', wp_json_encode($data));
-            $document->save();
+        try {
+            $document = \Elementor\Plugin::instance()->documents->get($page_id);
+            if ($document) {
+                // Check if data is an array of elements or wrapped
+                $elements = $data;
+                if (isset($data[0]['elType']) && $data[0]['elType'] === 'container' && isset($data[0]['elements'])) {
+                    // Typical Elementor structure: array of containers
+                    $elements = $data;
+                } elseif (isset($data['elements'])) {
+                    // Single root element
+                    $elements = $data['elements'];
+                }
+                $document->save(['elements' => $elements]);
+                $document->update_meta('_elementor_data', wp_json_encode($elements));
+                $document->save();
+                // Regenerate Elementor CSS
+                if (method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
+                    \Elementor\Plugin::instance()->files_manager->clear_cache();
+                }
+            } else {
+                error_log('Elementor document not found for page_id: ' . $page_id);
+            }
+        } catch (Throwable $e) {
+            error_log('Elementor save error: ' . $e->getMessage());
         }
     } else {
         // fallback: update_post_meta as before
