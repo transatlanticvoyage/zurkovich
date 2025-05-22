@@ -42,12 +42,12 @@ if (isset($_POST['generate_rubrickey']) && $selected_page_id) {
 }
 
 // Handle inject content action for zeeprex_submit
-if (isset($_POST['inject_zeeprex_content']) && $selected_page_id) {
+if (isset($_POST['inject_zeeprex_content_2']) && $selected_page_id) {
     $zeeprex_content = isset($_POST['zeeprex_content']) ? wp_kses_post($_POST['zeeprex_content']) : '';
     update_post_meta($selected_page_id, 'zeeprex_submit', $zeeprex_content);
     
     if (!empty($zeeprex_content)) {
-        function_inject_content_1($selected_page_id, $zeeprex_content);
+        function_inject_content_2($selected_page_id, $zeeprex_content);
     }
 }
 
@@ -190,9 +190,10 @@ if ($selected_page_id) {
             <tr>
                 <th><label for="zeeprex_submit">zeeprex_submit</label></th>
                 <td colspan="2">
+                    <div style="margin-bottom: 8px; color: #666;">Make sure your codes are preceded by a "#" symbol</div>
                     <textarea id="zeeprex_submit" name="zeeprex_content" style="width: 400px; height: 100px;"></textarea>
                     <br>
-                    <button type="submit" name="inject_zeeprex_content" style="background:#8000ff;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">inject content into selected page</button>
+                    <button type="submit" name="inject_zeeprex_content_2" style="background:#800000;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;">run function_inject_content_2</button>
                 </td>
             </tr>
             <tr><td colspan="3"><hr style="border:0; border-top:2px solid #333; margin:18px 0 18px 0;"></td></tr>
