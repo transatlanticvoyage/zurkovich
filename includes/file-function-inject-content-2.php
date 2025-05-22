@@ -119,6 +119,9 @@ function process_elements($elements, $map) {
             if (isset($el['widgetType'])) {
                 error_log('Processing widget type: ' . $el['widgetType']);
                 
+                // Log all settings for debugging
+                error_log('Widget settings: ' . json_encode($original_settings));
+                
                 switch ($el['widgetType']) {
                     case 'heading':
                         if (isset($original_settings['title'])) {
