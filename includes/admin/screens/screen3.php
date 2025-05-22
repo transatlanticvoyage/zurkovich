@@ -173,6 +173,7 @@ if ($selected_page_id) {
                             <textarea id="ante_prexchor_rubrickey" name="ante_prexchor_rubrickey" style="width: 400px; height: 250px;"><?php echo esc_textarea($ante_prexchor_rubrickey); ?></textarea>
                             <button type="submit" name="cache_prexchor_rubrickey" style="background:#2c4a2a;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">cache now</button>
                             <button type="submit" name="generate_rubrickey" style="background:#111;color:#fff;font-weight:bold;text-transform:lowercase;padding:8px 18px;border:none;border-radius:4px;cursor:pointer;">generate rubrickey from field above</button>
+                            <div style="margin-top:8px; font-size:11px; font-weight:normal;">function_create_prexchor_rubrickey_1</div>
                             <div style="font-weight:bold;">prexchor_rubrickey</div>
                             <textarea id="prexchor_rubrickey_output" name="prexchor_rubrickey_output" style="width: 400px; height: 250px;" readonly><?php echo esc_textarea($prexchor_rubrickey); ?></textarea>
                         </div>
