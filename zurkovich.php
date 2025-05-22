@@ -127,8 +127,8 @@ function zurkovich_admin_menu() {
 
     add_submenu_page(
         'zurkoscreen1',
-        'Screen 5',
-        'Screen 5',
+        'Screen 5 - Prex All Encompassing',
+        'Screen 5 - Prex All Encompassing',
         'manage_options',
         'zurkoscreen5', // updated
         'zurkovich_screen5'
