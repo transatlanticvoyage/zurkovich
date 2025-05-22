@@ -26,6 +26,8 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         return false;
     }
     
+    error_log('Raw Elementor data: ' . substr($elementor_data, 0, 500) . '...');
+    
     $data = json_decode($elementor_data, true);
     if (!is_array($data)) {
         error_log('Failed to decode Elementor data');
@@ -70,13 +72,16 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     $update_widgets = function (&$elements) use (&$update_widgets, $map) {
         foreach ($elements as &$el) {
             if (isset($el['settings']) && isset($el['widgetType'])) {
+                error_log('Checking widget: ' . $el['widgetType']);
                 // Check all possible text fields
                 $fields = ['title', 'title_text', 'description_text', 'editor', 'content', 'text'];
                 foreach ($fields as $field) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
+                        error_log('Field ' . $field . ' value: ' . substr($el['settings'][$field], 0, 100));
                         foreach ($map as $code => $content) {
                             if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
                                 error_log('Found match for code ' . $code . ' in widget ' . $el['widgetType'] . ' field ' . $field);
+                                error_log('Replacing with content: ' . substr($content, 0, 100));
                                 // Directly use the content as provided, preserving all HTML
                                 $el['settings'][$field] = $content;
                             }
@@ -93,7 +98,9 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     $update_widgets($data);
 
     // Save the updated data directly to post meta
-    $result = update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+    $json_data = wp_json_encode($data);
+    error_log('Saving updated data length: ' . strlen($json_data));
+    $result = update_post_meta($page_id, '_elementor_data', $json_data);
     error_log('Update post meta result: ' . ($result ? 'success' : 'failed'));
     
     // Ensure Elementor meta fields are set
