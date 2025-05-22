@@ -292,6 +292,7 @@ function function_inject_content_1($page_id, $zeeprex_content) {
                 foreach ($fields as $field) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
+                            // Inject user content exactly as provided, no auto-wrapping or modification
                             if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
                                 $el['settings'][$field] = $content;
                             }
