@@ -21,7 +21,6 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     
     // Decode HTML entities in the content
     $zeeprex_content = html_entity_decode($zeeprex_content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    error_log('Decoded content: ' . substr($zeeprex_content, 0, 200) . '...');
     
     // Get Elementor data
     $elementor_data = get_post_meta($page_id, '_elementor_data', true);
@@ -41,33 +40,22 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     $map = [];
     $current_code = null;
     
-    error_log('Processing zeeprex content lines: ' . count($lines));
-    
-    foreach ($lines as $line_num => $line) {
+    foreach ($lines as $line) {
         $line = rtrim($line);
-        error_log('Processing line ' . ($line_num + 1) . ': ' . $line);
-        
         // Look for lines starting with >y_ or >Y_
         if (preg_match('/^>y_([^\s]+)/', $line, $m)) {
             $current_code = 'y_' . $m[1];
             $map[$current_code] = '';
-            error_log('Found code: ' . $current_code);
         } elseif (preg_match('/^>Y_([^\s]+)/', $line, $m)) {
             $current_code = 'Y_' . $m[1];
             $map[$current_code] = '';
-            error_log('Found code: ' . $current_code);
         } elseif (preg_match('/^>/', $line)) {
             // Ignore other codes starting with >
             $current_code = null;
-            error_log('Ignoring non-y code: ' . $line);
         } elseif ($current_code !== null) {
             $map[$current_code] .= ($map[$current_code] === '' ? '' : "\n") . $line;
-            error_log('Added content for code ' . $current_code . ': ' . substr($line, 0, 50) . '...');
         }
     }
-    
-    error_log('Found ' . count($map) . ' y_ codes to process');
-    error_log('Codes found: ' . implode(', ', array_keys($map)));
     
     if (empty($map)) {
         error_log('No y_ codes found in content');
@@ -78,16 +66,18 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     $update_widgets = function (&$elements) use (&$update_widgets, $map) {
         foreach ($elements as &$el) {
             if (isset($el['settings']) && isset($el['widgetType'])) {
-                error_log('Checking widget: ' . $el['widgetType']);
-                
                 // Handle different widget types
                 switch ($el['widgetType']) {
                     case 'heading':
                         if (isset($el['settings']['title'])) {
                             foreach ($map as $code => $content) {
                                 if ($el['settings']['title'] === $code) {
-                                    error_log('Found match for code ' . $code . ' in heading widget');
+                                    // Preserve existing settings
                                     $el['settings']['title'] = $content;
+                                    // Keep typography and other settings
+                                    if (!isset($el['settings']['typography_typography'])) {
+                                        $el['settings']['typography_typography'] = 'custom';
+                                    }
                                 }
                             }
                         }
@@ -97,8 +87,12 @@ function function_inject_content_2($page_id, $zeeprex_content) {
                         if (isset($el['settings']['editor'])) {
                             foreach ($map as $code => $content) {
                                 if (strpos($el['settings']['editor'], $code) !== false) {
-                                    error_log('Found match for code ' . $code . ' in text-editor widget');
+                                    // Preserve existing settings
                                     $el['settings']['editor'] = str_replace($code, $content, $el['settings']['editor']);
+                                    // Keep typography and other settings
+                                    if (!isset($el['settings']['typography_typography'])) {
+                                        $el['settings']['typography_typography'] = 'custom';
+                                    }
                                 }
                             }
                         }
@@ -108,16 +102,24 @@ function function_inject_content_2($page_id, $zeeprex_content) {
                         if (isset($el['settings']['title_text'])) {
                             foreach ($map as $code => $content) {
                                 if ($el['settings']['title_text'] === $code) {
-                                    error_log('Found match for code ' . $code . ' in image-box title');
+                                    // Preserve existing settings
                                     $el['settings']['title_text'] = $content;
+                                    // Keep typography and other settings
+                                    if (!isset($el['settings']['title_typography_typography'])) {
+                                        $el['settings']['title_typography_typography'] = 'custom';
+                                    }
                                 }
                             }
                         }
                         if (isset($el['settings']['description_text'])) {
                             foreach ($map as $code => $content) {
                                 if ($el['settings']['description_text'] === $code) {
-                                    error_log('Found match for code ' . $code . ' in image-box description');
+                                    // Preserve existing settings
                                     $el['settings']['description_text'] = $content;
+                                    // Keep typography and other settings
+                                    if (!isset($el['settings']['description_typography_typography'])) {
+                                        $el['settings']['description_typography_typography'] = 'custom';
+                                    }
                                 }
                             }
                         }
@@ -134,9 +136,7 @@ function function_inject_content_2($page_id, $zeeprex_content) {
 
     // Save the updated data directly to post meta
     $json_data = wp_json_encode($data);
-    error_log('Saving updated data length: ' . strlen($json_data));
     $result = update_post_meta($page_id, '_elementor_data', $json_data);
-    error_log('Update post meta result: ' . ($result ? 'success' : 'failed'));
     
     // Ensure Elementor meta fields are set
     update_post_meta($page_id, '_elementor_edit_mode', 'builder');
@@ -146,6 +146,5 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     wp_cache_delete($page_id, 'post_meta');
     clean_post_cache($page_id);
     
-    error_log('Function completed successfully');
     return true;
 } 
