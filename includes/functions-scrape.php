@@ -164,13 +164,13 @@ function function_create_prexchor_rubrickey_1($page_id) {
         return;
     }
 
-    $elementor_data = json_decode($elementor_data, true);
+    $data = json_decode($elementor_data, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log('Failed to decode Elementor data: ' . json_last_error_msg());
         return;
     }
 
-    error_log(print_r($elementor_data, true));
+    error_log(print_r($data, true));
 
     $mapping = array();
     $lines = explode("\n", $ante_content);
@@ -209,20 +209,20 @@ function function_create_prexchor_rubrickey_1($page_id) {
                             $found = true;
                             return true;
                         }
+                    }
                     
-                        if ($widget['settings'][$field] === $line) {
-                            error_log('Found match in field ' . $field);
-                            $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
-                            $found = true;
-                            return true;
-                        }
+                    if ($widget['settings'][$field] === $line) {
+                        error_log('Found match in field ' . $field);
+                        $mapping[] = '>' . $line . ' -> .elementor-element-' . $widget['id'] . ' [settings.' . $field . ']';
+                        $found = true;
+                        return true;
                     }
                 }
             }
             return false;
         };
 
-        // Recursive function to check all levels of elements (define by reference)
+        // Recursive function to check all levels of elements
         $check_elements = null;
         $check_elements = function($elements, $line) use (&$check_widget, &$check_elements, &$found) {
             foreach ($elements as $element) {
@@ -240,7 +240,7 @@ function function_create_prexchor_rubrickey_1($page_id) {
         };
 
         // Start checking from the top level
-        $check_elements($elementor_data, $line);
+        $check_elements($data, $line);
         
         if (!$found) {
             error_log('No match found for line: ' . $line);
@@ -250,22 +250,54 @@ function function_create_prexchor_rubrickey_1($page_id) {
     error_log('Saving mapping for page ' . $page_id . ': ' . implode("\n", $mapping));
     update_post_meta($page_id, 'prexchor_rubrickey', implode("\n", $mapping));
 
-    // Save the original Elementor data back without modification
-    update_post_meta($page_id, '_elementor_data', wp_json_encode($elementor_data));
-    
-    // Ensure Elementor meta fields are set
-    update_post_meta($page_id, '_elementor_edit_mode', 'builder');
-    update_post_meta($page_id, '_elementor_template_type', 'page');
-    
-    // Clear caches
-    if (function_exists('wp_cache_clear_cache')) {
-        wp_cache_clear_cache();
+    // Use Elementor's API to update the data and trigger all hooks
+    if (class_exists('Elementor\\Plugin')) {
+        try {
+            $document = \Elementor\Plugin::instance()->documents->get($page_id);
+            if ($document) {
+                // Ensure we have the correct data structure
+                $elements = $data;
+                if (isset($data[0]['elType']) && $data[0]['elType'] === 'container' && isset($data[0]['elements'])) {
+                    $elements = $data;
+                } elseif (isset($data['elements'])) {
+                    $elements = $data['elements'];
+                }
+
+                // Save using Elementor's document API
+                $document->save([
+                    'elements' => $elements,
+                    'settings' => $document->get_settings()
+                ]);
+
+                // Force CSS regeneration
+                if (method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
+                    \Elementor\Plugin::instance()->files_manager->clear_cache();
+                }
+
+                // Trigger Elementor's CSS regeneration
+                if (method_exists($document, 'get_css_wrapper_selector')) {
+                    $css_file = \Elementor\Core\Files\CSS\Post::create($page_id);
+                    if ($css_file) {
+                        $css_file->update();
+                    }
+                }
+
+                // Clear WordPress cache
+                wp_cache_delete($page_id, 'post_meta');
+                clean_post_cache($page_id);
+            } else {
+                error_log('Elementor document not found for page_id: ' . $page_id);
+            }
+        } catch (Throwable $e) {
+            error_log('Elementor save error: ' . $e->getMessage());
+            // Fallback to direct meta update if Elementor API fails
+            update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+        }
+    } else {
+        // Fallback if Elementor is not active
+        update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
     }
-    
-    // Clear Elementor cache if available
-    if (class_exists('Elementor\\Plugin') && method_exists(\Elementor\Plugin::instance()->files_manager, 'clear_cache')) {
-        \Elementor\Plugin::instance()->files_manager->clear_cache();
-    }
+    return true;
 }
 
 /**
