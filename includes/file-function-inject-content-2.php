@@ -73,20 +73,49 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         foreach ($elements as &$el) {
             if (isset($el['settings']) && isset($el['widgetType'])) {
                 error_log('Checking widget: ' . $el['widgetType']);
-                // Check all possible text fields
-                $fields = ['title', 'title_text', 'description_text', 'editor', 'content', 'text'];
-                foreach ($fields as $field) {
-                    if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
-                        error_log('Field ' . $field . ' value: ' . substr($el['settings'][$field], 0, 100));
-                        foreach ($map as $code => $content) {
-                            if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
-                                error_log('Found match for code ' . $code . ' in widget ' . $el['widgetType'] . ' field ' . $field);
-                                error_log('Replacing with content: ' . substr($content, 0, 100));
-                                // Directly use the content as provided, preserving all HTML
-                                $el['settings'][$field] = $content;
+                
+                // Handle different widget types
+                switch ($el['widgetType']) {
+                    case 'heading':
+                        if (isset($el['settings']['title'])) {
+                            foreach ($map as $code => $content) {
+                                if ($el['settings']['title'] === $code) {
+                                    error_log('Found match for code ' . $code . ' in heading widget');
+                                    $el['settings']['title'] = $content;
+                                }
                             }
                         }
-                    }
+                        break;
+                        
+                    case 'text-editor':
+                        if (isset($el['settings']['editor'])) {
+                            foreach ($map as $code => $content) {
+                                if (strpos($el['settings']['editor'], $code) !== false) {
+                                    error_log('Found match for code ' . $code . ' in text-editor widget');
+                                    $el['settings']['editor'] = str_replace($code, $content, $el['settings']['editor']);
+                                }
+                            }
+                        }
+                        break;
+                        
+                    case 'image-box':
+                        if (isset($el['settings']['title_text'])) {
+                            foreach ($map as $code => $content) {
+                                if ($el['settings']['title_text'] === $code) {
+                                    error_log('Found match for code ' . $code . ' in image-box title');
+                                    $el['settings']['title_text'] = $content;
+                                }
+                            }
+                        }
+                        if (isset($el['settings']['description_text'])) {
+                            foreach ($map as $code => $content) {
+                                if ($el['settings']['description_text'] === $code) {
+                                    error_log('Found match for code ' . $code . ' in image-box description');
+                                    $el['settings']['description_text'] = $content;
+                                }
+                            }
+                        }
+                        break;
                 }
             }
             if (isset($el['elements']) && is_array($el['elements'])) {
