@@ -12,19 +12,32 @@ if (!defined('ABSPATH')) {
  * @return bool True on success, false on failure.
  */
 function function_inject_content_2($page_id, $zeeprex_content) {
-    if (empty($zeeprex_content)) return false;
+    error_log('Starting function_inject_content_2 for page_id: ' . $page_id);
+    
+    if (empty($zeeprex_content)) {
+        error_log('Empty zeeprex content');
+        return false;
+    }
     
     // Get Elementor data
     $elementor_data = get_post_meta($page_id, '_elementor_data', true);
-    if (empty($elementor_data)) return false;
+    if (empty($elementor_data)) {
+        error_log('No Elementor data found for page_id: ' . $page_id);
+        return false;
+    }
     
     $data = json_decode($elementor_data, true);
-    if (!is_array($data)) return false;
+    if (!is_array($data)) {
+        error_log('Failed to decode Elementor data');
+        return false;
+    }
 
     // Parse zeeprex_content into code => content
     $lines = preg_split('/\r?\n/', $zeeprex_content);
     $map = [];
     $current_code = null;
+    
+    error_log('Processing zeeprex content lines: ' . count($lines));
     
     foreach ($lines as $line) {
         $line = rtrim($line);
@@ -32,6 +45,7 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         if (preg_match('/^>([yY][^\s]*)/', $line, $m)) {
             $current_code = $m[1];
             $map[$current_code] = '';
+            error_log('Found code: ' . $current_code);
         } elseif (preg_match('/^>/', $line)) {
             // Ignore other codes starting with >
             $current_code = null;
@@ -40,7 +54,13 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         }
     }
     
-    if (empty($map)) return false;
+    error_log('Found ' . count($map) . ' y_ codes to process');
+    error_log('Codes found: ' . implode(', ', array_keys($map)));
+    
+    if (empty($map)) {
+        error_log('No y_ codes found in content');
+        return false;
+    }
 
     // Helper to recursively update widgets
     $update_widgets = function (&$elements) use (&$update_widgets, $map) {
@@ -52,6 +72,7 @@ function function_inject_content_2($page_id, $zeeprex_content) {
                     if (isset($el['settings'][$field]) && is_string($el['settings'][$field])) {
                         foreach ($map as $code => $content) {
                             if ($el['settings'][$field] === $code || strpos($el['settings'][$field], $code) !== false) {
+                                error_log('Found match for code ' . $code . ' in widget ' . $el['widgetType'] . ' field ' . $field);
                                 // Directly use the content as provided, preserving all HTML
                                 $el['settings'][$field] = $content;
                             }
@@ -68,7 +89,8 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     $update_widgets($data);
 
     // Save the updated data directly to post meta
-    update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+    $result = update_post_meta($page_id, '_elementor_data', wp_json_encode($data));
+    error_log('Update post meta result: ' . ($result ? 'success' : 'failed'));
     
     // Ensure Elementor meta fields are set
     update_post_meta($page_id, '_elementor_edit_mode', 'builder');
@@ -78,5 +100,6 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     wp_cache_delete($page_id, 'post_meta');
     clean_post_cache($page_id);
     
+    error_log('Function completed successfully');
     return true;
 } 
