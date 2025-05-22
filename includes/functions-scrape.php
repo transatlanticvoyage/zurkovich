@@ -257,10 +257,11 @@ function function_create_prexchor_rubrickey_1($page_id) {
             if ($document) {
                 // Get the original data structure
                 $original_data = get_post_meta($page_id, '_elementor_data', true);
+                $original_elements = json_decode($original_data, true);
                 
                 // Save the original data back to maintain structure
                 $document->save([
-                    'elements' => json_decode($original_data, true),
+                    'elements' => $original_elements,
                     'settings' => $document->get_settings()
                 ]);
                 
@@ -278,11 +279,17 @@ function function_create_prexchor_rubrickey_1($page_id) {
                     wp_cache_clear_cache();
                 }
                 
-                // Clear Elementor cache
+                // Clear Elementor cache again
                 \Elementor\Plugin::instance()->files_manager->clear_cache();
                 
-                // Regenerate CSS
+                // Regenerate CSS one final time
                 $css_file->update();
+                
+                // Save the document one final time to ensure everything is in sync
+                $document->save([
+                    'elements' => $original_elements,
+                    'settings' => $document->get_settings()
+                ]);
             }
         } catch (Throwable $e) {
             error_log('Elementor CSS regeneration error: ' . $e->getMessage());
