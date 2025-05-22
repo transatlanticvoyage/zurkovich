@@ -18,6 +18,10 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         return false;
     }
     
+    // Decode HTML entities in the content
+    $zeeprex_content = html_entity_decode($zeeprex_content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    error_log('Decoded content: ' . substr($zeeprex_content, 0, 200) . '...');
+    
     // Parse mappings
     $map = array();
     $lines = preg_split('/\r\n|\r|\n/', $zeeprex_content);
@@ -26,17 +30,20 @@ function function_inject_content_2($page_id, $zeeprex_content) {
     error_log('Processing ' . count($lines) . ' lines of content');
     
     foreach ($lines as $line) {
-        if (preg_match('/^>y_([^\s]+)/', trim($line), $m)) {
+        $line = trim($line);
+        error_log('Processing line: ' . $line);
+        
+        if (preg_match('/^>y_([^\s]+)/', $line, $m)) {
             $key = 'y_' . $m[1];
             $map[$key] = '';
             error_log('Found y_ code: ' . $key);
-        } elseif (preg_match('/^>Y_([^\s]+)/', trim($line), $m)) {
+        } elseif (preg_match('/^>Y_([^\s]+)/', $line, $m)) {
             $key = 'Y_' . $m[1];
             $map[$key] = '';
             error_log('Found Y_ code: ' . $key);
-        } elseif (preg_match('/^>/', trim($line))) {
+        } elseif (preg_match('/^>/', $line)) {
             $key = '';
-            error_log('Ignoring non-y code: ' . trim($line));
+            error_log('Ignoring non-y code: ' . $line);
         } elseif ($key !== '') {
             $map[$key] .= ($map[$key] === '' ? '' : "\n") . $line;
             error_log('Added content for ' . $key . ': ' . substr($line, 0, 50) . '...');
