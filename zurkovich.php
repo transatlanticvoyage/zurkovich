@@ -14,6 +14,9 @@ if (!defined('ABSPATH')) {
 // Include scraping functions
 require_once plugin_dir_path(__FILE__) . 'includes/functions-scrape.php';
 
+// Include new content injection function
+require_once plugin_dir_path(__FILE__) . 'includes/file-function-inject-content-2.php';
+
 // Function to save API key
 function zurkovich_save_api_key($api_key) {
     // Encrypt the API key before saving
