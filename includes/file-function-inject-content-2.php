@@ -31,15 +31,15 @@ function function_inject_content_2($page_id, $zeeprex_content) {
         $line = trim($line);
         error_log('Processing line ' . ($line_num + 1) . ': ' . $line);
         
-        if (preg_match('/^>y_([^\s]+)/', $line, $m)) {
+        if (preg_match('/^#y_([^\s]+)/', $line, $m)) {
             $key = 'y_' . $m[1];
             $map[$key] = '';
             error_log('Found y_ code: ' . $key);
-        } elseif (preg_match('/^>Y_([^\s]+)/', $line, $m)) {
+        } elseif (preg_match('/^#Y_([^\s]+)/', $line, $m)) {
             $key = 'Y_' . $m[1];
             $map[$key] = '';
             error_log('Found Y_ code: ' . $key);
-        } elseif (preg_match('/^>/', $line)) {
+        } elseif (preg_match('/^#/', $line)) {
             $key = '';
             error_log('Ignoring non-y code: ' . $line);
         } elseif ($key !== '') {
